@@ -1,0 +1,11 @@
+spring:
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/recipe-book}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+
+logging:
+  level:
+    dev.michaelgoldman.recipebookbackend: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.orm.jdbc.bind: TRACE
