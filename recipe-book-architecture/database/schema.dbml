@@ -1,0 +1,22 @@
+// Use DBML to define your database structure
+// Docs: https://dbml.dbdiagram.io/docs
+
+Table recipes {
+  id integer [primary key, increment]
+  name varchar(100) [unique, not null]
+  description varchar(500)
+}
+
+Table ingredients {
+  id integer [primary key, increment]
+  name varchar(100) [unique, not null]
+}
+
+Table steps {
+  id integer [primary key, increment]
+  name varchar(100) [not null]
+  description varchar(500)
+  recipe_id integer [ref: > recipes.id]
+}
+
+Ref: recipes.id <> ingredients.id
