@@ -1,0 +1,294 @@
+{
+  "configuration" : { },
+  "description" : "A personal administrative tool to save, edit, and browse recipes.",
+  "documentation" : { },
+  "id" : 1,
+  "lastModifiedDate" : "2026-07-03T13:56:01Z",
+  "model" : {
+    "people" : [ {
+      "description" : "A home cook who saves, edits, and browses their personal recipes.",
+      "id" : "1",
+      "name" : "User",
+      "properties" : {
+        "structurizr.dsl.identifier" : "user"
+      },
+      "relationships" : [ {
+        "description" : "Browses, creates, edits, and deletes recipes using",
+        "destinationId" : "3",
+        "id" : "9",
+        "sourceId" : "1",
+        "tags" : "Relationship",
+        "technology" : "HTTPS"
+      }, {
+        "description" : "Browses, creates, edits, and deletes recipes using",
+        "destinationId" : "2",
+        "id" : "10",
+        "linkedRelationshipId" : "9",
+        "sourceId" : "1",
+        "technology" : "HTTPS"
+      } ],
+      "tags" : "Element,Person"
+    } ],
+    "softwareSystems" : [ {
+      "containers" : [ {
+        "description" : "Provides the user interface for browsing, creating, editing, and deleting recipes.",
+        "documentation" : { },
+        "id" : "3",
+        "name" : "Frontend Web Application",
+        "properties" : {
+          "structurizr.dsl.identifier" : "frontend"
+        },
+        "relationships" : [ {
+          "description" : "Makes API calls to",
+          "destinationId" : "5",
+          "id" : "11",
+          "sourceId" : "3",
+          "tags" : "Relationship",
+          "technology" : "JSON/HTTPS"
+        }, {
+          "description" : "Makes API calls to",
+          "destinationId" : "4",
+          "id" : "12",
+          "linkedRelationshipId" : "11",
+          "sourceId" : "3",
+          "technology" : "JSON/HTTPS"
+        } ],
+        "tags" : "Element,Container",
+        "technology" : "Angular"
+      }, {
+        "components" : [ {
+          "description" : "Exposes REST endpoints for recipe and ingredient operations.",
+          "documentation" : { },
+          "id" : "5",
+          "name" : "Recipe Controller",
+          "properties" : {
+            "structurizr.dsl.identifier" : "controller"
+          },
+          "relationships" : [ {
+            "description" : "Delegates and ingredient operations to",
+            "destinationId" : "6",
+            "id" : "13",
+            "sourceId" : "5",
+            "tags" : "Relationship"
+          } ],
+          "tags" : "Element,Component",
+          "technology" : "Spring MVC Rest Controller"
+        }, {
+          "description" : "Implements business logic for managing recipes, their ordered steps, and ingredients shared across recipes.",
+          "documentation" : { },
+          "id" : "6",
+          "name" : "Recipe Service",
+          "properties" : {
+            "structurizr.dsl.identifier" : "service"
+          },
+          "relationships" : [ {
+            "description" : "Uses to persist and retrieve data",
+            "destinationId" : "7",
+            "id" : "14",
+            "sourceId" : "6",
+            "tags" : "Relationship"
+          } ],
+          "tags" : "Element,Component",
+          "technology" : "Spring Service"
+        }, {
+          "description" : "Provides data access for recipes, steps, and ingredients.",
+          "documentation" : { },
+          "id" : "7",
+          "name" : "Recipe Repository",
+          "properties" : {
+            "structurizr.dsl.identifier" : "repository"
+          },
+          "relationships" : [ {
+            "description" : "Reads from and writes to",
+            "destinationId" : "8",
+            "id" : "15",
+            "sourceId" : "7",
+            "tags" : "Relationship",
+            "technology" : "JDBC"
+          } ],
+          "tags" : "Element,Component",
+          "technology" : "JPA/Hibernate, EntityManager"
+        } ],
+        "description" : "Handles recipe CRUD operations and manages ingredients across shared recipes.",
+        "documentation" : { },
+        "id" : "4",
+        "name" : "Backend API",
+        "properties" : {
+          "structurizr.dsl.identifier" : "backend"
+        },
+        "relationships" : [ {
+          "description" : "Reads from and writes to",
+          "destinationId" : "8",
+          "id" : "16",
+          "linkedRelationshipId" : "15",
+          "sourceId" : "4",
+          "technology" : "JDBC"
+        } ],
+        "tags" : "Element,Container",
+        "technology" : "Java, Spring Boot, JPA"
+      }, {
+        "description" : "Stores recipes, ingredients, and cooking steps.",
+        "documentation" : { },
+        "id" : "8",
+        "name" : "Database",
+        "properties" : {
+          "structurizr.dsl.identifier" : "database"
+        },
+        "tags" : "Element,Container,Database",
+        "technology" : "PostgreSQL"
+      } ],
+      "description" : "Allows users to store, browse, and manage recipes, including their ingredients and cooking steps.",
+      "documentation" : { },
+      "id" : "2",
+      "name" : "Recipe Book",
+      "properties" : {
+        "structurizr.dsl.identifier" : "recipeBook"
+      },
+      "tags" : "Element,Software System"
+    } ]
+  },
+  "name" : "Recipe Book",
+  "properties" : {
+    "structurizr.inspection.error" : "5",
+    "structurizr.dsl" : "d29ya3NwYWNlICJSZWNpcGUgQm9vayIgIkEgcGVyc29uYWwgYWRtaW5pc3RyYXRpdmUgdG9vbCB0byBzYXZlLCBlZGl0LCBhbmQgYnJvd3NlIHJlY2lwZXMuIiB7CiAgICBtb2RlbCB7CiAgICAgICAgdXNlciA9IHBlcnNvbiAiVXNlciIgIkEgaG9tZSBjb29rIHdobyBzYXZlcywgZWRpdHMsIGFuZCBicm93c2VzIHRoZWlyIHBlcnNvbmFsIHJlY2lwZXMuIgoKICAgICAgICByZWNpcGVCb29rID0gc29mdHdhcmVTeXN0ZW0gIlJlY2lwZSBCb29rIiAiQWxsb3dzIHVzZXJzIHRvIHN0b3JlLCBicm93c2UsIGFuZCBtYW5hZ2UgcmVjaXBlcywgaW5jbHVkaW5nIHRoZWlyIGluZ3JlZGllbnRzIGFuZCBjb29raW5nIHN0ZXBzLiIgewogICAgICAgICAgICBmcm9udGVuZCA9IGNvbnRhaW5lciAiRnJvbnRlbmQgV2ViIEFwcGxpY2F0aW9uIiAiUHJvdmlkZXMgdGhlIHVzZXIgaW50ZXJmYWNlIGZvciBicm93c2luZywgY3JlYXRpbmcsIGVkaXRpbmcsIGFuZCBkZWxldGluZyByZWNpcGVzLiIgIkFuZ3VsYXIiCiAgICAgICAgICAgIGJhY2tlbmQgPSBjb250YWluZXIgIkJhY2tlbmQgQVBJIiAiSGFuZGxlcyByZWNpcGUgQ1JVRCBvcGVyYXRpb25zIGFuZCBtYW5hZ2VzIGluZ3JlZGllbnRzIGFjcm9zcyBzaGFyZWQgcmVjaXBlcy4iICJKYXZhLCBTcHJpbmcgQm9vdCwgSlBBIiB7CiAgICAgICAgICAgICAgICBjb250cm9sbGVyID0gY29tcG9uZW50ICJSZWNpcGUgQ29udHJvbGxlciIgIkV4cG9zZXMgUkVTVCBlbmRwb2ludHMgZm9yIHJlY2lwZSBhbmQgaW5ncmVkaWVudCBvcGVyYXRpb25zLiIgIlNwcmluZyBNVkMgUmVzdCBDb250cm9sbGVyIgogICAgICAgICAgICAgICAgc2VydmljZSA9IGNvbXBvbmVudCAiUmVjaXBlIFNlcnZpY2UiICJJbXBsZW1lbnRzIGJ1c2luZXNzIGxvZ2ljIGZvciBtYW5hZ2luZyByZWNpcGVzLCB0aGVpciBvcmRlcmVkIHN0ZXBzLCBhbmQgaW5ncmVkaWVudHMgc2hhcmVkIGFjcm9zcyByZWNpcGVzLiIgIlNwcmluZyBTZXJ2aWNlIgogICAgICAgICAgICAgICAgcmVwb3NpdG9yeSA9IGNvbXBvbmVudCAiUmVjaXBlIFJlcG9zaXRvcnkiICJQcm92aWRlcyBkYXRhIGFjY2VzcyBmb3IgcmVjaXBlcywgc3RlcHMsIGFuZCBpbmdyZWRpZW50cy4iICJKUEEvSGliZXJuYXRlLCBFbnRpdHlNYW5hZ2VyIgogICAgICAgICAgICB9CiAgICAgICAgICAgIGRhdGFiYXNlID0gY29udGFpbmVyICJEYXRhYmFzZSIgIlN0b3JlcyByZWNpcGVzLCBpbmdyZWRpZW50cywgYW5kIGNvb2tpbmcgc3RlcHMuIiAiUG9zdGdyZVNRTCIgIkRhdGFiYXNlIgogICAgICAgIH0KCiAgICAgICAgdXNlciAtPiBmcm9udGVuZCAiQnJvd3NlcywgY3JlYXRlcywgZWRpdHMsIGFuZCBkZWxldGVzIHJlY2lwZXMgdXNpbmciICJIVFRQUyIKICAgICAgICBmcm9udGVuZCAtPiBjb250cm9sbGVyICJNYWtlcyBBUEkgY2FsbHMgdG8iICJKU09OL0hUVFBTIgogICAgICAgIGNvbnRyb2xsZXIgLT4gc2VydmljZSAiRGVsZWdhdGVzIGFuZCBpbmdyZWRpZW50IG9wZXJhdGlvbnMgdG8iCiAgICAgICAgc2VydmljZSAtPiByZXBvc2l0b3J5ICJVc2VzIHRvIHBlcnNpc3QgYW5kIHJldHJpZXZlIGRhdGEiCiAgICAgICAgcmVwb3NpdG9yeSAtPiBkYXRhYmFzZSAiUmVhZHMgZnJvbSBhbmQgd3JpdGVzIHRvIiAiSkRCQyIKICAgIH0KCiAgICB2aWV3cyB7CiAgICAgICAgc3lzdGVtQ29udGV4dCByZWNpcGVCb29rICJTeXN0ZW1Db250ZXh0IiB7CiAgICAgICAgICAgIGluY2x1ZGUgKgogICAgICAgICAgICBhdXRvbGF5b3V0IGxyCiAgICAgICAgfQoKICAgICAgICBjb250YWluZXIgcmVjaXBlQm9vayAiQ29udGFpbmVycyIgewogICAgICAgICAgICBpbmNsdWRlICoKICAgICAgICAgICAgYXV0b2xheW91dCBscgogICAgICAgIH0KCiAgICAgICAgY29tcG9uZW50IGJhY2tlbmQgIkNvbXBvbmVudCIgewogICAgICAgICAgICBpbmNsdWRlICoKICAgICAgICAgICAgYXV0b2xheW91dCBscgogICAgICAgIH0KCiAgICAgICAgc3R5bGVzIHsKICAgICAgICAgICAgZWxlbWVudCAiUGVyc29uIiB7CiAgICAgICAgICAgICAgICBiYWNrZ3JvdW5kICMwODQyN2IKICAgICAgICAgICAgICAgIGNvbG9yICNmZmZmZmYKICAgICAgICAgICAgICAgIHNoYXBlIFBlcnNvbgogICAgICAgICAgICB9CiAgICAgICAgICAgIGVsZW1lbnQgIlNvZnR3YXJlIFN5c3RlbSIgewogICAgICAgICAgICAgICAgYmFja2dyb3VuZCAjMTE2OGJkCiAgICAgICAgICAgICAgICBjb2xvciAjZmZmZmZmIAogICAgICAgICAgICB9ICAgIAogICAgICAgICAgICBlbGVtZW50ICJDb250YWluZXIiIHsKICAgICAgICAgICAgICAgIGJhY2tncm91bmQgIzQzOGRkNQogICAgICAgICAgICAgICAgY29sb3IgI2ZmZmZmZgogICAgICAgICAgICB9CiAgICAgICAgICAgIGVsZW1lbnQgIkNvbXBvbmVudCIgewogICAgICAgICAgICAgICAgYmFja2dyb3VuZCAjODViYmYwCiAgICAgICAgICAgICAgICBjb2xvciAjMDAwMDAwCiAgICAgICAgICAgIH0KICAgICAgICAgICAgZWxlbWVudCAiRGF0YWJhc2UiIHsKICAgICAgICAgICAgICAgIHNoYXBlIEN5bGluZGVyCiAgICAgICAgICAgIH0KICAgICAgICB9CiAgICB9Cn0=",
+    "structurizr.inspection.info" : "0",
+    "structurizr.inspection.ignore" : "0",
+    "structurizr.inspection.warning" : "0"
+  },
+  "views" : {
+    "componentViews" : [ {
+      "automaticLayout" : {
+        "edgeSeparation" : 50,
+        "nodeSeparation" : 50,
+        "rankDirection" : "LeftRight",
+        "rankSeparation" : 100,
+        "vertices" : true
+      },
+      "containerId" : "4",
+      "elements" : [ {
+        "id" : "3",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "5",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "6",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "7",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "8",
+        "x" : 0,
+        "y" : 0
+      } ],
+      "externalContainerBoundariesVisible" : false,
+      "key" : "Component",
+      "name" : "Component View: Recipe Book - Backend API",
+      "order" : 3,
+      "relationships" : [ {
+        "id" : "11"
+      }, {
+        "id" : "13"
+      }, {
+        "id" : "14"
+      }, {
+        "id" : "15"
+      } ]
+    } ],
+    "configuration" : {
+      "styles" : {
+        "elements" : [ {
+          "background" : "#85bbf0",
+          "color" : "#000000",
+          "tag" : "Component"
+        }, {
+          "background" : "#438dd5",
+          "color" : "#ffffff",
+          "tag" : "Container"
+        }, {
+          "shape" : "Cylinder",
+          "tag" : "Database"
+        }, {
+          "background" : "#08427b",
+          "color" : "#ffffff",
+          "shape" : "Person",
+          "tag" : "Person"
+        }, {
+          "background" : "#1168bd",
+          "color" : "#ffffff",
+          "tag" : "Software System"
+        } ]
+      },
+      "terminology" : { }
+    },
+    "containerViews" : [ {
+      "automaticLayout" : {
+        "edgeSeparation" : 50,
+        "nodeSeparation" : 50,
+        "rankDirection" : "LeftRight",
+        "rankSeparation" : 100,
+        "vertices" : true
+      },
+      "elements" : [ {
+        "id" : "1",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "3",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "4",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "8",
+        "x" : 0,
+        "y" : 0
+      } ],
+      "externalSoftwareSystemBoundariesVisible" : false,
+      "key" : "Containers",
+      "name" : "Container View: Recipe Book",
+      "order" : 2,
+      "relationships" : [ {
+        "id" : "12"
+      }, {
+        "id" : "16"
+      }, {
+        "id" : "9"
+      } ],
+      "softwareSystemId" : "2"
+    } ],
+    "systemContextViews" : [ {
+      "automaticLayout" : {
+        "edgeSeparation" : 50,
+        "nodeSeparation" : 50,
+        "rankDirection" : "LeftRight",
+        "rankSeparation" : 100,
+        "vertices" : true
+      },
+      "elements" : [ {
+        "id" : "1",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "2",
+        "x" : 0,
+        "y" : 0
+      } ],
+      "enterpriseBoundaryVisible" : true,
+      "key" : "SystemContext",
+      "name" : "System Context View: Recipe Book",
+      "order" : 1,
+      "relationships" : [ {
+        "id" : "10"
+      } ],
+      "softwareSystemId" : "2"
+    } ]
+  }
+}
