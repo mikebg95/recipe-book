@@ -5,7 +5,7 @@ This repository contains the software architecture blueprints for the Recipe Boo
 ## Repository Structure
 
 ```
-recipe-book-tracker-architecture/
+recipe-book-architecture/
 ├── README.md
 ├── .gitignore
 ├── c4/
