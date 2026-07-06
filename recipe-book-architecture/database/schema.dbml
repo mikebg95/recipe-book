@@ -1,22 +1,38 @@
-// Use DBML to define your database structure
-// Docs: https://dbml.dbdiagram.io/docs
-
 Table recipes {
-  id integer [primary key, increment]
-  name varchar(100) [unique, not null]
-  description varchar(500)
+  id BIGINT [pk, increment]
+  name VARCHAR(100) [not null, unique]
+  description VARCHAR(500)
 }
 
 Table ingredients {
-  id integer [primary key, increment]
-  name varchar(100) [unique, not null]
+  id BIGINT [pk, increment]
+  name VARCHAR(100) [not null, unique]
 }
 
 Table steps {
-  id integer [primary key, increment]
-  name varchar(100) [not null]
-  description varchar(500)
-  recipe_id integer [ref: > recipes.id]
+  id BIGINT [pk, increment]
+  description VARCHAR(500) [not null]
+  step_number INT [not null]
+  recipe_id BIGINT [not null]
+
+  indexes {
+    (recipe_id, step_number) [unique, name: 'uq_steps_recipe_number']
+    recipe_id [name: 'idx_steps_recipe_id']
+  }
 }
 
-Ref: recipes.id <> ingredients.id
+Table recipe_ingredients {
+  recipe_id BIGINT [not null]
+  ingredient_id BIGINT [not null]
+  quantity NUMERIC [not null]
+  unit VARCHAR(50) [not null]
+
+  indexes {
+    (recipe_id, ingredient_id) [pk]
+    ingredient_id [name: 'idx_ri_ingredient_id']
+  }
+}
+
+Ref fk_steps_recipe: steps.recipe_id > recipes.id [delete: cascade]
+Ref fk_ri_recipe: recipe_ingredients.recipe_id > recipes.id [delete: cascade]
+Ref fk_ri_ingredient: recipe_ingredients.ingredient_id > ingredients.id [delete: cascade]
