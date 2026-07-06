@@ -24,7 +24,7 @@ Table steps {
 Table recipe_ingredients {
   recipe_id BIGINT [not null]
   ingredient_id BIGINT [not null]
-  quantity NUMERIC [not null]
+  quantity NUMERIC(10,3) [not null]
   unit VARCHAR(50) [not null]
 
   indexes {
