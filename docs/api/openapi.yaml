@@ -1,0 +1,332 @@
+openapi: 3.1.0
+info:
+  title: Recipe Book API
+  description: REST API for managing recipes, including their ingredients and preparation steps.
+  version: 0.0.1
+servers:
+- url: http://localhost:8080/api/v1
+  description: Local server for running backend API locally.
+tags:
+  - name: Recipes
+    description: Recipe management - browsing, creating, updating, and deleting recipes.
+paths:
+  /recipes:
+    get:
+      operationId: getRecipes
+      tags: [Recipes]
+      summary: List recipes
+      description: Returns every recipe as a lightweight summary (name and counts only). Use `GET /recipes/{id}` for full detail.
+      responses:
+        "200":
+          description: List of recipes successfully returned
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/RecipeSummaryResponse"
+        "500":
+          $ref: "#/components/responses/UnexpectedError"
+    post:
+      operationId: createRecipe
+      tags: [Recipes]
+      summary: Create a recipe
+      description: Creates a recipe from the given name, description, ingredients, and steps. Fails with a 409 if a recipe with the same name already exists.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RecipeRequest"
+      responses:
+        "201":
+          description: Recipe successfully created
+          headers:
+            Location:
+              description: URI of the newly created recipe
+              required: true
+              schema: 
+                type: string
+                format: uri
+          content:
+            application/json: 
+              schema:
+                $ref: "#/components/schemas/RecipeResponse"
+        "400":
+          $ref: "#/components/responses/InvalidRequestBody"
+        "409":
+          $ref: "#/components/responses/DuplicateNotAllowed"
+        "500":
+          $ref: "#/components/responses/UnexpectedError"
+  /recipes/{id}:
+    parameters:
+      - $ref: "#/components/parameters/recipeId"
+    get:
+      operationId: getRecipeById
+      tags: [Recipes]
+      summary: Get a recipe
+      description: Returns full recipe detail, including all ingredients and steps in order.
+      responses:
+        "200":
+          description: Recipe successfully returned
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RecipeResponse"
+        "400":
+          $ref: '#/components/responses/InvalidPathVariable'
+        "404":
+          $ref: "#/components/responses/RecipeNotFound"
+        "500":
+          $ref: "#/components/responses/UnexpectedError"
+    put:
+      operationId: updateRecipe
+      tags: [Recipes]
+      summary: Update a recipe
+      description: Replaces the entire recipe, including its ingredients and steps. This is a full replacement, not a partial update - any step or ingredient omitted from the request is removed.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RecipeRequest"
+      responses:
+        "200":
+          description: Recipe successfully updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RecipeResponse"
+        "400":
+          $ref: '#/components/responses/InvalidRequestBody'
+        "404":
+          $ref: "#/components/responses/RecipeNotFound"
+        "409":
+          $ref: "#/components/responses/DuplicateNotAllowed"
+        "500":
+          $ref: "#/components/responses/UnexpectedError"
+    delete:
+      operationId: deleteRecipe
+      tags: [Recipes]
+      summary: Delete a recipe
+      description: Deletes a recipe along with its steps and ingredient associations. Shared ingredient catalog entries are not deleted.
+      responses:
+        "204":
+          description: Recipe successfully deleted
+        "400":
+          $ref: '#/components/responses/InvalidPathVariable'
+        "404":
+          $ref: "#/components/responses/RecipeNotFound"
+        "500":
+          $ref: "#/components/responses/UnexpectedError"
+components:
+  schemas:
+    RecipeRequest:
+      type: object
+      description: Recipe data submitted when creating or updating a recipe.
+      required: [name, ingredients, steps]
+      properties: 
+        name:
+          type: string
+          description: Name of the recipe.
+          minLength: 1
+          maxLength: 100
+          examples: ["Steak & Fries", "Spaghetti alla Carbonara", "Coq au Vin"]
+        description:
+          type: string
+          description: Description of the recipe.
+          maxLength: 500
+          examples: ["A velvety, late-night Roman classic that transforms humble eggs, crispy guanciale, and sharp Pecorino Romano into a silky, comforting masterpiece of pure culinary alchemy."]
+        ingredients:
+          type: array
+          minItems: 1
+          description: List of ingredients for this recipe. Ingredient names must be unique within a recipe.
+          items: 
+            $ref: "#/components/schemas/Ingredient"
+        steps:
+          type: array
+          minItems: 1
+          description: Ordered list of preparation steps. Order is taken from array position, not sent explicitly.
+          items:
+            $ref: "#/components/schemas/StepRequest"
+    RecipeSummaryResponse:
+      type: object
+      description: Minimal recipe representation used in list views.
+      required: [id, name, numberOfIngredients, numberOfSteps]
+      properties: 
+        id:
+          type: integer
+          format: int64
+          description: Server-generated id of the recipe.
+          minimum: 1
+          examples: [639, 6]
+        name: 
+          type: string
+          description: Name of the recipe.
+          minLength: 1
+          maxLength: 100
+          examples: ["Steak & Fries", "Spaghetti alla Carbonara", "Coq au Vin"]
+        description:
+          type: string
+          description: Description of the recipe.
+          maxLength: 500
+          examples: ["An absolute icon of Parisian bistro culture, featuring a perfectly seared, juicy steak paired with a mountain of golden, crispy fries for the ultimate celebration of rustic indulgence."]
+        numberOfIngredients:
+          type: integer
+          description: Number of ingredients of the recipe.
+          minimum: 1
+          examples: [4, 13]
+        numberOfSteps:
+          type: integer
+          description: Number of steps of the recipe.
+          minimum: 1
+          examples: [7, 9]
+    RecipeResponse:
+      type: object
+      description: Full recipe representation returned when fetching, creating, or updating a recipe.
+      required: [id, name, ingredients, steps]
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: Server-generated id of the recipe.
+          minimum: 1
+          examples: [4, 26]
+        name: 
+          type: string
+          description: Name of the recipe.
+          minLength: 1
+          maxLength: 100
+          examples: ["Steak & Fries", "Spaghetti alla Carbonara", "Coq au Vin"]
+        description:
+          type: string
+          description: Description of the recipe.
+          maxLength: 500
+          examples: ["A deep, seductive French comfort classic where tender chicken, smoky lardons, and earthy mushrooms are slow-braised to perfection in a rich, velvety bath of full-bodied red wine."]
+        ingredients:
+          type: array
+          minItems: 1
+          items: 
+            $ref: "#/components/schemas/Ingredient"
+        steps:
+          type: array
+          minItems: 1
+          items:
+            $ref: "#/components/schemas/Step"
+    ProblemDetail:
+      type: object
+      description: RFC 9457 problem details object returned for all error responses.
+      properties:
+        type:
+          type: string
+          format: uri
+          description: A URI reference identifying the problem type.
+        title:
+          type: string
+          description: A short, human-readable summary of the problem type.
+        status:
+          type: integer
+          format: int32
+          description: The HTTP status code for this occurrence of the problem.
+        detail:
+          type: string
+          description: A human-readable explanation specific to this occurrence of the problem.
+        instance:
+          type: string
+          format: uri
+          description: A URI reference identifying this specific occurrence of the problem.
+        properties:
+          type: object
+          description: Additional problem-specific extension members, as permitted by RFC 9457.
+          additionalProperties: true
+    Ingredient:
+      type: object
+      description: Ingredient used in a recipe, with its unit and quantity.
+      required: [name, unit, quantity]
+      properties:
+        name:
+          type: string
+          description: Name of the ingredient.
+          minLength: 1
+          maxLength: 100
+          examples: ["Red Wine", "Chicken Stock"]
+        unit:
+          type: string
+          description: Unit type of the ingredient.
+          minLength: 1
+          maxLength: 50
+          examples: ["grams", "ml", "tablespoon"]
+        quantity:
+          type: number
+          description: Quantity of the ingredient. Can contain maximum 7 integer digits, and maximum 3 decimal digits.
+          exclusiveMinimum: 0
+          x-field-extra-annotation: "@jakarta.validation.constraints.Digits(integer = 7, fraction = 3)"
+          examples: [750, 133.33, 0.666]
+    Step:
+      type: object
+      description: A recipe step with its position in the sequence.
+      required: [description, stepNumber]
+      properties:
+        description: 
+          type: string
+          description: The description of the step.
+          minLength: 1
+          maxLength: 500
+          examples: ["Cut the guanciale into cubes of about 1cm by 1cm."]
+        stepNumber:
+          type: integer
+          description: Position of this step within the recipe, starting at 1.
+          format: int32
+          minimum: 1
+    StepRequest:
+      type: object
+      description: A preparation step submitted when creating or updating a recipe. Step order is taken from array position - stepNumber is not sent in the request.
+      required: [description]
+      properties:
+        description: 
+          type: string
+          description: The description of the step.
+          minLength: 1
+          maxLength: 500
+          examples: ["Cut the guanciale into cubes of about 1cm by 1cm."]
+  responses:
+    UnexpectedError:
+      description: Unexpected server error
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/ProblemDetail"
+    RecipeNotFound:
+      description: Recipe not found
+      content: 
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/ProblemDetail"
+    DuplicateNotAllowed:
+      description: Duplicate value(s) not allowed
+      content: 
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/ProblemDetail"
+    InvalidPathVariable:
+      description: Invalid path parameter
+      content:
+        application/problem+json:
+          schema: 
+            $ref: "#/components/schemas/ProblemDetail"
+    InvalidRequestBody:
+      description: Invalid RecipeRequest details
+      content:
+        application/problem+json:
+          schema: 
+            $ref: "#/components/schemas/ProblemDetail"
+  parameters:
+    recipeId:
+      name: id
+      in: path
+      description: Unique identifier of the recipe.
+      required: true
+      schema:
+        type: integer
+        format: int64
+        exclusiveMinimum: 0
