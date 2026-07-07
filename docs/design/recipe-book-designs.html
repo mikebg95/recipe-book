@@ -1,0 +1,109 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Recipe Book — Designs</title><style>:root{--surface-2:#ffffff;--surface-1:#f6f5f1;--surface-0:#efede7;--text-primary:#1b1b19;--text-secondary:#6a695f;--text-muted:#9b998f;--border:#e6e4dc;--border-strong:#d7d5cc;--brand:#0E9F6E;--brand-strong:#0B7D55;--danger:#D65A54}
+@media (prefers-color-scheme:dark){:root{--surface-2:#2a2a27;--surface-1:#212120;--surface-0:#191918;--text-primary:#f1efe8;--text-secondary:#a7a59c;--text-muted:#77756e;--border:#38382f;--border-strong:#4a4943}body{background:var(--surface-0)}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--surface-0);color:var(--text-primary);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;line-height:1.5;padding:32px 16px}
+.wrap{max-width:760px;margin:0 auto}
+.page-title{font-size:15px;color:var(--text-muted);text-align:center;margin:0 0 28px}
+.frame{border:0.5px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:24px;background:var(--surface-2)}
+.cap{font-size:12px;color:var(--text-muted);padding:9px 14px;border-bottom:0.5px solid var(--border);background:var(--surface-1)}
+.screen{background:var(--surface-1)}
+.bar{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;background:var(--surface-2);border-bottom:0.5px solid var(--border)}
+.logo{display:flex;align-items:center;gap:10px;font-size:15px;font-weight:500}
+.mark{width:30px;height:30px;border-radius:9px;background:var(--brand);color:#fff;display:flex;align-items:center;justify-content:center}
+.main{padding:22px 20px 26px}
+.h1{font-size:21px;font-weight:500;margin:0}
+.btn{display:inline-flex;align-items:center;gap:7px;padding:9px 15px;border-radius:10px;font-size:14px;font-weight:500;border:0.5px solid var(--border-strong);color:var(--text-primary);background:var(--surface-2)}
+.btn.primary{background:var(--brand);color:#fff;border-color:var(--brand)}
+.btn.danger{color:var(--danger);border-color:var(--danger)}
+.btn.solid-danger{background:var(--danger);color:#fff;border-color:var(--danger)}
+.btn.sm{padding:6px 11px;font-size:13px}
+.card{background:var(--surface-2);border:0.5px solid var(--border);border-radius:14px;padding:16px}
+.lab{font-size:12.5px;color:var(--text-secondary);margin-bottom:6px;font-weight:500}
+.in{height:40px;border:0.5px solid var(--border-strong);border-radius:10px;background:var(--surface-2);display:flex;align-items:center;padding:0 13px;font-size:14px}
+.ph{color:var(--text-muted)}
+.sec{font-size:14px;font-weight:500;display:flex;align-items:center;gap:8px;margin-bottom:14px}
+.num{width:24px;height:24px;border-radius:8px;background:rgba(14,159,110,0.12);color:var(--brand-strong);display:flex;align-items:center;justify-content:center;font-size:12.5px;font-weight:500;flex-shrink:0}
+.pill{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:20px;background:var(--surface-1);border:0.5px solid var(--border);font-size:12.5px;color:var(--text-secondary)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.trow{display:grid;grid-template-columns:2.4fr 1fr 1fr auto;align-items:center;padding:14px 16px;border-bottom:0.5px solid var(--border)}
+.overlay{background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;padding:28px;min-height:270px}
+.modal{background:var(--surface-2);border-radius:16px;padding:24px;max-width:340px;width:100%;text-align:center}</style></head><body><div class="wrap">
+<p class="page-title">Recipe Book — polished designs</p>
+
+<div class="frame"><div class="cap">Home — recipes</div><div class="screen">
+<div class="bar"><div class="logo"><span class="mark"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em;flex-shrink:0"><path d="M19 3v12h-5c-.023-3.681.184-7.406 5-12zm0 12v6"/><path d="M11 3v6a2 2 0 1 1-4 0V3M9 3v18"/></svg></span>Recipe Book</div>
+<span class="btn primary"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em;flex-shrink:0"><path d="M12 5v14M5 12h14"/></svg>Add a recipe</span></div>
+<div class="main"><h1 class="h1" style="margin-bottom:16px">Your recipes</h1>
+<div class="card" style="padding:0;overflow:hidden">
+<div style="display:grid;grid-template-columns:2.4fr 1fr 1fr auto;padding:12px 16px;border-bottom:0.5px solid var(--border);font-size:12px;color:var(--text-muted);font-weight:500"><div>Name</div><div style="text-align:center">Ingredients</div><div style="text-align:center">Steps</div><div style="width:20px"></div></div>
+<div class="trow"><div style="font-size:14.5px;font-weight:500">Banana bread</div><div style="text-align:center"><span class="pill"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em;flex-shrink:0"><path d="M5 11a7 7 0 0 1 8-8 7 7 0 0 1 8 8 7 7 0 0 1-8 8 7 7 0 0 1-8-8z"/><path d="M9 9c1.5 1.5 1.5 4 0 6"/></svg>8</span></div><div style="text-align:center"><span class="pill"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em;flex-shrink:0"><path d="M11 6h9M11 12h9M12 18h8"/><path d="M4 6h1v4M4 10h2M6 18H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg>7</span></div><span style="color:var(--text-muted)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em;flex-shrink:0"><path d="M9 6l6 6-6 6"/></svg></span></div>
+<div class="trow"><div style="font-size:14.5px;font-weight:500">Tomato soup</div><div style="text-align:center"><span class="pill"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em;flex-shrink:0"><path d="M5 11a7 7 0 0 1 8-8 7 7 0 0 1 8 8 7 7 0 0 1-8 8 7 7 0 0 1-8-8z"/><path d="M9 9c1.5 1.5 1.5 4 0 6"/></svg>6</span></div><div style="text-align:center"><span class="pill"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em;flex-shrink:0"><path d="M11 6h9M11 12h9M12 18h8"/><path d="M4 6h1v4M4 10h2M6 18H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg>4</span></div><span style="color:var(--text-muted)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em;flex-shrink:0"><path d="M9 6l6 6-6 6"/></svg></span></div>
+<div class="trow" style="border-bottom:none"><div style="font-size:14.5px;font-weight:500">Pancakes</div><div style="text-align:center"><span class="pill"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em;flex-shrink:0"><path d="M5 11a7 7 0 0 1 8-8 7 7 0 0 1 8 8 7 7 0 0 1-8 8 7 7 0 0 1-8-8z"/><path d="M9 9c1.5 1.5 1.5 4 0 6"/></svg>5</span></div><div style="text-align:center"><span class="pill"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em;flex-shrink:0"><path d="M11 6h9M11 12h9M12 18h8"/><path d="M4 6h1v4M4 10h2M6 18H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg>3</span></div><span style="color:var(--text-muted)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em;flex-shrink:0"><path d="M9 6l6 6-6 6"/></svg></span></div>
+</div></div></div></div>
+
+<div class="frame"><div class="cap">Home — empty state</div><div class="screen">
+<div class="bar"><div class="logo"><span class="mark"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em;flex-shrink:0"><path d="M19 3v12h-5c-.023-3.681.184-7.406 5-12zm0 12v6"/><path d="M11 3v6a2 2 0 1 1-4 0V3M9 3v18"/></svg></span>Recipe Book</div></div>
+<div class="main"><div style="text-align:center;padding:44px 20px">
+<div style="width:60px;height:60px;border-radius:16px;background:rgba(14,159,110,0.10);color:var(--brand);display:flex;align-items:center;justify-content:center;margin:0 auto 18px"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em;flex-shrink:0"><path d="M12 3a4 4 0 0 1 3.8 2.75A4 4 0 0 1 18 13H6a4 4 0 0 1 2.2-7.25A4 4 0 0 1 12 3z"/><path d="M6 13v6a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-6"/></svg></div>
+<div style="font-size:17px;font-weight:500;margin-bottom:6px">Start your recipe book</div>
+<div style="font-size:14px;color:var(--text-secondary);margin-bottom:20px">Save your first recipe and it'll show up here.</div>
+<span class="btn primary"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em;flex-shrink:0"><path d="M12 5v14M5 12h14"/></svg>Add a recipe</span></div></div></div></div>
+
+<div class="frame"><div class="cap">Add recipe</div><div class="screen">
+<div class="bar"><div class="logo"><span class="mark"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em;flex-shrink:0"><path d="M19 3v12h-5c-.023-3.681.184-7.406 5-12zm0 12v6"/><path d="M11 3v6a2 2 0 1 1-4 0V3M9 3v18"/></svg></span>Recipe Book</div></div>
+<div class="main"><h1 class="h1" style="margin-bottom:18px">Add recipe</h1>
+<div style="margin-bottom:14px"><div class="lab">Name</div><div class="in"><span class="ph">e.g. Banana bread</span></div>
+<div style="font-size:12.5px;color:var(--danger);margin-top:6px;display:flex;align-items:center;gap:5px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em;flex-shrink:0"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>Enter a name</div></div>
+<div style="margin-bottom:22px"><div class="lab">Description</div><div class="in" style="height:60px;align-items:flex-start;padding-top:11px"><span class="ph">A short description</span></div></div>
+<div class="grid2">
+<div class="card"><div class="sec"><span style="color:var(--brand)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em;flex-shrink:0"><path d="M11 6h9M11 12h9M12 18h8"/><path d="M4 6h1v4M4 10h2M6 18H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg></span>Steps</div>
+<div style="display:flex;align-items:center;gap:9px;margin-bottom:12px"><span style="color:var(--text-muted)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em;flex-shrink:0"><circle cx="9" cy="6" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="9" cy="18" r="1"/><circle cx="15" cy="6" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="18" r="1"/></svg></span><span class="num">1</span><div style="flex:1;font-size:13.5px">Mash the bananas</div><span style="color:var(--text-muted)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em;flex-shrink:0"><path d="M4 20h4L18.5 9.5a1.5 1.5 0 0 0-4-4L4 16v4zM13.5 6.5l4 4"/></svg></span></div>
+<div style="display:flex;gap:8px;margin-top:10px"><div class="in" style="flex:1;height:36px"><span class="ph">Add a step</span></div><span class="btn sm primary"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em;flex-shrink:0"><path d="M12 5v14M5 12h14"/></svg></span></div></div>
+<div class="card"><div class="sec"><span style="color:var(--brand)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em;flex-shrink:0"><path d="M5 11a7 7 0 0 1 8-8 7 7 0 0 1 8 8 7 7 0 0 1-8 8 7 7 0 0 1-8-8z"/><path d="M9 9c1.5 1.5 1.5 4 0 6"/></svg></span>Ingredients</div>
+<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px"><div style="flex:1;font-size:13.5px">Flour</div><span class="pill">200 g</span><span style="color:var(--text-muted)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em;flex-shrink:0"><path d="M4 20h4L18.5 9.5a1.5 1.5 0 0 0-4-4L4 16v4zM13.5 6.5l4 4"/></svg></span></div>
+<div style="display:grid;grid-template-columns:1fr 0.6fr 0.55fr;gap:6px;margin-top:10px"><div class="in" style="height:36px"><span class="ph">Name</span></div><div class="in" style="height:36px"><span class="ph">Unit</span></div><div class="in" style="height:36px"><span class="ph">Qty</span></div></div>
+<div style="margin-top:8px;text-align:right"><span class="btn sm primary"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em;flex-shrink:0"><path d="M12 5v14M5 12h14"/></svg>Add</span></div></div></div>
+<div style="display:flex;gap:10px;margin-top:22px"><span class="btn primary"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em;flex-shrink:0"><path d="M5 12l5 5L20 7"/></svg>Save recipe</span><span class="btn">Cancel</span></div>
+</div></div></div>
+
+<div class="frame"><div class="cap">View recipe</div><div class="screen">
+<div class="bar"><span class="btn sm"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em;flex-shrink:0"><path d="M5 12h14M5 12l6-6M5 12l6 6"/></svg>Back</span><div style="display:flex;gap:8px"><span class="btn sm"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em;flex-shrink:0"><path d="M4 20h4L18.5 9.5a1.5 1.5 0 0 0-4-4L4 16v4zM13.5 6.5l4 4"/></svg>Edit</span><span class="btn sm danger"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em;flex-shrink:0"><path d="M4 7h16M10 11v6M14 11v6M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/></svg>Delete</span></div></div>
+<div class="main"><h1 class="h1">Banana bread</h1><div style="font-size:14px;color:var(--text-secondary);margin:6px 0 22px">Moist loaf, great for breakfast.</div>
+<div class="grid2">
+<div class="card"><div class="sec"><span style="color:var(--brand)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em;flex-shrink:0"><path d="M11 6h9M11 12h9M12 18h8"/><path d="M4 6h1v4M4 10h2M6 18H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg></span>Steps</div>
+<div style="display:flex;flex-direction:column;gap:14px">
+<div style="display:flex;gap:11px;align-items:flex-start"><span class="num">1</span><span style="font-size:13.5px;line-height:1.5">Mash the ripe bananas in a bowl.</span></div>
+<div style="display:flex;gap:11px;align-items:flex-start"><span class="num">2</span><span style="font-size:13.5px;line-height:1.5">Mix in the eggs and sugar.</span></div>
+<div style="display:flex;gap:11px;align-items:flex-start"><span class="num">3</span><span style="font-size:13.5px;line-height:1.5">Fold in the flour.</span></div>
+<div style="display:flex;gap:11px;align-items:flex-start"><span class="num">4</span><span style="font-size:13.5px;line-height:1.5">Bake for 60 minutes at 180°C.</span></div>
+</div></div>
+<div class="card"><div class="sec"><span style="color:var(--brand)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em;flex-shrink:0"><path d="M5 11a7 7 0 0 1 8-8 7 7 0 0 1 8 8 7 7 0 0 1-8 8 7 7 0 0 1-8-8z"/><path d="M9 9c1.5 1.5 1.5 4 0 6"/></svg></span>Ingredients</div>
+<div style="display:flex;flex-direction:column;gap:11px">
+<div style="display:flex;justify-content:space-between;align-items:center;font-size:13.5px"><span>Flour</span><span class="pill">200 g</span></div>
+<div style="display:flex;justify-content:space-between;align-items:center;font-size:13.5px"><span>Bananas</span><span class="pill">3 pcs</span></div>
+<div style="display:flex;justify-content:space-between;align-items:center;font-size:13.5px"><span>Sugar</span><span class="pill">100 g</span></div>
+<div style="display:flex;justify-content:space-between;align-items:center;font-size:13.5px"><span>Eggs</span><span class="pill">2 pcs</span></div>
+</div></div></div></div></div></div>
+
+<div class="frame"><div class="cap">Delete confirmation</div>
+<div class="overlay"><div class="modal">
+<div style="width:48px;height:48px;border-radius:12px;background:rgba(214,90,84,0.12);color:var(--danger);display:flex;align-items:center;justify-content:center;margin:0 auto 14px"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em;flex-shrink:0"><path d="M4 7h16M10 11v6M14 11v6M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/></svg></div>
+<div style="font-size:16px;font-weight:500;margin-bottom:6px">Delete this recipe?</div>
+<div style="font-size:13.5px;color:var(--text-secondary);margin-bottom:20px">This can't be undone.</div>
+<div style="display:flex;gap:10px"><span class="btn" style="flex:1;justify-content:center">Cancel</span><span class="btn solid-danger" style="flex:1;justify-content:center">Delete</span></div>
+</div></div></div>
+
+<div class="grid2">
+<div class="frame"><div class="cap">Something went wrong</div><div class="screen"><div class="main" style="text-align:center;padding:40px 18px">
+<div style="width:54px;height:54px;border-radius:14px;background:var(--surface-1);color:var(--text-secondary);display:flex;align-items:center;justify-content:center;margin:0 auto 16px"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em;flex-shrink:0"><path d="M12 4l9 16H3z"/><path d="M12 10v4M12 18h.01"/></svg></div>
+<div style="font-size:15.5px;font-weight:500;margin-bottom:16px">Something went wrong</div>
+<span class="btn primary"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em;flex-shrink:0"><path d="M5 12l7-7 7 7M6 10v9h4v-5h4v5h4v-9"/></svg>Back to home</span></div></div></div>
+<div class="frame"><div class="cap">Page not found</div><div class="screen"><div class="main" style="text-align:center;padding:40px 18px">
+<div style="font-size:34px;font-weight:500;color:var(--brand)">404</div>
+<div style="font-size:15.5px;font-weight:500;margin:6px 0 16px">Page not found</div>
+<span class="btn primary"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em;flex-shrink:0"><path d="M5 12l7-7 7 7M6 10v9h4v-5h4v5h4v-9"/></svg>Back to home</span></div></div></div>
+</div>
+
+</div></body></html>
