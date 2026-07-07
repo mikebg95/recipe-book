@@ -267,6 +267,36 @@
 					</execution>
 				</executions>
 			</plugin>
+			<plugin>
+				<groupId>org.openapitools</groupId>
+				<artifactId>openapi-generator-maven-plugin</artifactId>
+				<version>7.12.0</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+						<configuration>
+							<inputSpec>${project.basedir}/../docs/api/openapi.yaml</inputSpec>
+							<generatorName>spring</generatorName>
+							<generateApiTests>false</generateApiTests>
+							<generateModelTests>false</generateModelTests>
+							<generateSupportingFiles>true</generateSupportingFiles>
+							<supportingFilesToGenerate>ApiUtil.java</supportingFilesToGenerate>
+							<configOptions>
+								<interfaceOnly>true</interfaceOnly>
+								<useSpringBoot4>true</useSpringBoot4>
+								<useBeanValidation>true</useBeanValidation>
+								<useTags>true</useTags>
+								<documentationProvider>none</documentationProvider>
+								<apiPackage>dev.michaelgoldman.recipebookbackend.api</apiPackage>
+								<modelPackage>dev.michaelgoldman.recipebookbackend.api.model</modelPackage>
+								<dateLibrary>java8</dateLibrary>
+							</configOptions>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 	</build>
 
