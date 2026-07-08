@@ -285,14 +285,39 @@
 							<supportingFilesToGenerate>ApiUtil.java</supportingFilesToGenerate>
 							<configOptions>
 								<interfaceOnly>true</interfaceOnly>
-								<useSpringBoot4>true</useSpringBoot4>
+								<useJakartaEe>true</useJakartaEe>
 								<useBeanValidation>true</useBeanValidation>
 								<useTags>true</useTags>
 								<documentationProvider>none</documentationProvider>
 								<apiPackage>dev.michaelgoldman.recipebookbackend.api</apiPackage>
 								<modelPackage>dev.michaelgoldman.recipebookbackend.api.model</modelPackage>
 								<dateLibrary>java8</dateLibrary>
+								<openApiNullable>false</openApiNullable>
 							</configOptions>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-resources-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>copy-openapi-spec</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${project.build.outputDirectory}/static</outputDirectory>
+							<resources>
+								<resource>
+									<directory>${project.basedir}/../docs/api</directory>
+									<includes>
+										<include>openapi.yaml</include>
+									</includes>
+								</resource>
+							</resources>
 						</configuration>
 					</execution>
 				</executions>
