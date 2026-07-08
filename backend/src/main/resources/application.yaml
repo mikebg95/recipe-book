@@ -6,6 +6,10 @@ spring:
     problemdetails:
       enabled: true
 
+  jpa:
+    hibernate:
+      ddl-auto: validate
+
 springdoc:
   api-docs:
     enabled: ${SPRINGDOC_ENABLED:true}
