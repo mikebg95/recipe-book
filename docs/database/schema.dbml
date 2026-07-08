@@ -1,38 +1,31 @@
 Table recipes {
-  id BIGINT [pk, increment]
-  name VARCHAR(100) [not null, unique]
-  description VARCHAR(500)
+  id bigint [primary key, increment]
+  name varchar(100) [unique, not null]
+  description varchar(500)
 }
 
 Table ingredients {
-  id BIGINT [pk, increment]
-  name VARCHAR(100) [not null, unique]
+  id bigint [primary key, increment]
+  name varchar(100) [not null]
+  unit varchar(50) [not null]
+  quantity numeric(10,3) [not null, check: `quantity > 0`]
+  recipe_id bigint [not null]
+
+  indexes {
+    (recipe_id, name) [unique, name: 'uq_ingredients_recipe_name']
+  }
 }
 
 Table steps {
-  id BIGINT [pk, increment]
-  description VARCHAR(500) [not null]
-  step_number INT [not null]
-  recipe_id BIGINT [not null]
+  id bigint [primary key, increment]
+  description varchar(500) [not null]
+  step_number integer [not null, check: `step_number > 0`]
+  recipe_id bigint [not null]
 
   indexes {
     (recipe_id, step_number) [unique, name: 'uq_steps_recipe_number']
-    recipe_id [name: 'idx_steps_recipe_id']
   }
 }
 
-Table recipe_ingredients {
-  recipe_id BIGINT [not null]
-  ingredient_id BIGINT [not null]
-  quantity NUMERIC(10,3) [not null]
-  unit VARCHAR(50) [not null]
-
-  indexes {
-    (recipe_id, ingredient_id) [pk]
-    ingredient_id [name: 'idx_ri_ingredient_id']
-  }
-}
-
+Ref fk_ingredients_recipe: ingredients.recipe_id > recipes.id [delete: cascade]
 Ref fk_steps_recipe: steps.recipe_id > recipes.id [delete: cascade]
-Ref fk_ri_recipe: recipe_ingredients.recipe_id > recipes.id [delete: cascade]
-Ref fk_ri_ingredient: recipe_ingredients.ingredient_id > ingredients.id [delete: cascade]
