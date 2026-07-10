@@ -142,7 +142,7 @@ components:
           minItems: 1
           description: List of ingredients for this recipe. Ingredient names must be unique within a recipe.
           items: 
-            $ref: "#/components/schemas/Ingredient"
+            $ref: "#/components/schemas/IngredientRequest"
         steps:
           type: array
           minItems: 1
@@ -207,12 +207,12 @@ components:
           type: array
           minItems: 1
           items: 
-            $ref: "#/components/schemas/Ingredient"
+            $ref: "#/components/schemas/IngredientRequest"
         steps:
           type: array
           minItems: 1
           items:
-            $ref: "#/components/schemas/Step"
+            $ref: "#/components/schemas/StepResponse"
     ProblemDetail:
       type: object
       description: RFC 9457 problem details object returned for all error responses.
@@ -239,7 +239,7 @@ components:
           type: object
           description: Additional problem-specific extension members, as permitted by RFC 9457.
           additionalProperties: true
-    Ingredient:
+    IngredientRequest:
       type: object
       description: Ingredient used in a recipe, with its unit and quantity.
       required: [name, unit, quantity]
@@ -262,7 +262,7 @@ components:
           exclusiveMinimum: 0
           x-field-extra-annotation: "@jakarta.validation.constraints.Digits(integer = 7, fraction = 3)"
           examples: [750, 133.33, 0.666]
-    Step:
+    StepResponse:
       type: object
       description: A recipe step with its position in the sequence.
       required: [description, stepNumber]
