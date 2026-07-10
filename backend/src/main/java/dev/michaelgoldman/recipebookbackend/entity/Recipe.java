@@ -7,6 +7,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
 import lombok.AccessLevel;
@@ -48,6 +49,7 @@ public class Recipe implements Serializable {
     private List<Ingredient> ingredients = new ArrayList<>();
 
     @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("stepNumber ASC")
     private List<Step> steps = new ArrayList<>();
 
     public Recipe(String name, String description) {
@@ -63,16 +65,13 @@ public class Recipe implements Serializable {
     public void addStep(Step step) {
         steps.add(step);
         step.setRecipe(this);
+        renumberSteps();
     }
 
-    public void removeIngredient(Ingredient ingredient) {
-        ingredients.remove(ingredient);
-        ingredient.setRecipe(null);
-    }
-
-    public void removeStep(Step step) {
-        steps.remove(step);
-        step.setRecipe(null);
+    private void renumberSteps() {
+        for (int i = 0; i < steps.size(); i++) {
+            steps.get(i).setStepNumber(i + 1);
+        }
     }
 
     @Override
