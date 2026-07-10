@@ -1,6 +1,7 @@
 package dev.michaelgoldman.recipebookbackend.api.model;
 
 import java.util.List;
+import java.util.stream.IntStream;
 
 import static dev.michaelgoldman.recipebookbackend.api.model.IngredientTestBuilder.anIngredient;
 import static dev.michaelgoldman.recipebookbackend.api.model.StepResponseTestBuilder.aStepResponse;
@@ -36,8 +37,10 @@ public class RecipeResponseTestBuilder {
         return this;
     }
 
-    public RecipeResponseTestBuilder withSteps(StepResponse... steps) {
-        this.steps = List.of(steps);
+    public RecipeResponseTestBuilder withStepDescriptions(List<String> descriptions) {
+        this.steps = IntStream.range(0, descriptions.size())
+                .mapToObj(i -> new StepResponse(descriptions.get(i), i + 1))
+                .toList();
         return this;
     }
 

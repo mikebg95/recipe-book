@@ -1,9 +1,12 @@
 package dev.michaelgoldman.recipebookbackend.entity;
 
+import org.springframework.test.util.ReflectionTestUtils;
+
 import java.math.BigDecimal;
 import java.util.List;
 
 public class RecipeTestBuilder {
+    private Long id;
     private String name = "Valid recipe name";
     private String description = "A valid recipe description.";
     private List<Ingredient> ingredients = List.of(
@@ -13,6 +16,11 @@ public class RecipeTestBuilder {
 
     public static RecipeTestBuilder aRecipe() {
         return new RecipeTestBuilder();
+    }
+
+    public RecipeTestBuilder withId(Long id) {
+        this.id = id;
+        return this;
     }
 
     public RecipeTestBuilder withName(String name) {
@@ -39,6 +47,9 @@ public class RecipeTestBuilder {
         Recipe recipe = new Recipe(name, description);
         ingredients.forEach(recipe::addIngredient);
         steps.forEach(recipe::addStep);
+        if (id != null) {
+            ReflectionTestUtils.setField(recipe, "id", id);
+        }
         return recipe;
     }
 }
