@@ -14,3 +14,6 @@ logging:
   level:
     root: INFO
     dev.michaelgoldman.recipebookbackend: INFO
+
+cors:
+  allowed-origin-pattern: https://the-real-reployed-frontend-domain.com
