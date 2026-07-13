@@ -235,10 +235,6 @@ components:
           type: string
           format: uri
           description: A URI reference identifying this specific occurrence of the problem.
-        properties:
-          type: object
-          description: Additional problem-specific extension members, as permitted by RFC 9457.
-          additionalProperties: true
     Ingredient:
       type: object
       description: Ingredient used in a recipe, with its unit and quantity.
