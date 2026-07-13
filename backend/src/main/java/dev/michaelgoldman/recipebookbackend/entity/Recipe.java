@@ -18,6 +18,7 @@ import lombok.Setter;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Entity
@@ -55,6 +56,14 @@ public class Recipe implements Serializable {
     public Recipe(String name, String description) {
         this.name = name;
         this.description = description;
+    }
+
+    public List<Ingredient> getIngredients() {
+        return Collections.unmodifiableList(ingredients);
+    }
+
+    public List<Step> getSteps() {
+        return Collections.unmodifiableList(steps);
     }
 
     public void addIngredient(Ingredient ingredient) {
