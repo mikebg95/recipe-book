@@ -355,6 +355,51 @@ class RecipeRepositoryTest {
         }
     }
 
+    @Nested
+    @DisplayName("ExistsByName")
+    class ExistsByName {
+        @Test
+        void ifExists_shouldReturnTrue() {
+            // Arrange
+            String name = "Feijoada";
+            Recipe recipe = aRecipe().withName(name).build();
+            testEntityManager.persistAndFlush(recipe);
+            testEntityManager.clear();
+
+            // Act
+            boolean exists = recipeRepository.existsByName(name);
+
+            // Assert
+            assertThat(exists).isTrue();
+        }
+
+        @Test
+        void ifDoesNotExist_shouldReturnFalse() {
+            // Arrange
+            String name = "Feijoada";
+
+            // Act
+            boolean exists = recipeRepository.existsByName(name);
+
+            // Assert
+            assertThat(exists).isFalse();
+        }
+
+        @Test
+        void ifDifferentNameExists_shouldReturnFalse() {
+            // Arrange
+            Recipe differentNameRecipe = aRecipe().withName("Pad Thai").build();
+            testEntityManager.persistAndFlush(differentNameRecipe);
+            testEntityManager.clear();
+
+            // Act
+            boolean exists = recipeRepository.existsByName("Feijoada");
+
+            // Assert
+            assertThat(exists).isFalse();
+        }
+    }
+
     private Recipe saveAndReload(Recipe recipe) {
         recipeRepository.save(recipe);
         testEntityManager.flush();
