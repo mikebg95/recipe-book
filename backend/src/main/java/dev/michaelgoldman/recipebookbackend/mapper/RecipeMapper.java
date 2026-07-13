@@ -12,7 +12,10 @@ import org.springframework.stereotype.Component;
 @Component
 public class RecipeMapper {
     public Recipe toEntity(RecipeRequest request) {
-        Recipe recipe = new Recipe(request.getName(), request.getDescription());
+        String description = (request.getDescription() == null || request.getDescription().isBlank())
+                ? null
+                : request.getDescription().strip();
+        Recipe recipe = new Recipe(request.getName(), description);
 
         for (dev.michaelgoldman.recipebookbackend.api.model.Ingredient ingredient : request.getIngredients()) {
             recipe.addIngredient(new Ingredient(ingredient.getName(), ingredient.getUnit(), ingredient.getQuantity()));

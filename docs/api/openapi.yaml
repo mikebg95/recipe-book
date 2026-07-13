@@ -131,6 +131,7 @@ components:
           description: Name of the recipe.
           minLength: 1
           maxLength: 100
+          x-field-extra-annotation: "@jakarta.validation.constraints.NotBlank"
           examples: ["Steak & Fries", "Spaghetti alla Carbonara", "Coq au Vin"]
         description:
           type: string
@@ -245,12 +246,14 @@ components:
           description: Name of the ingredient.
           minLength: 1
           maxLength: 100
+          x-field-extra-annotation: "@jakarta.validation.constraints.NotBlank"
           examples: ["Red Wine", "Chicken Stock"]
         unit:
           type: string
           description: Unit type of the ingredient.
           minLength: 1
           maxLength: 50
+          x-field-extra-annotation: "@jakarta.validation.constraints.NotBlank"
           examples: ["grams", "ml", "tablespoon"]
         quantity:
           type: number
@@ -284,6 +287,7 @@ components:
           description: The description of the step.
           minLength: 1
           maxLength: 500
+          x-field-extra-annotation: "@jakarta.validation.constraints.NotBlank"
           examples: ["Cut the guanciale into cubes of about 1cm by 1cm."]
   responses:
     UnexpectedError:
