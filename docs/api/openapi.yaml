@@ -74,7 +74,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/RecipeResponse"
         "400":
-          $ref: '#/components/responses/InvalidPathVariable'
+          $ref: "#/components/responses/InvalidPathVariable"
         "404":
           $ref: "#/components/responses/RecipeNotFound"
         "500":
@@ -98,7 +98,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/RecipeResponse"
         "400":
-          $ref: '#/components/responses/InvalidRequestBody'
+          $ref: "#/components/responses/InvalidRequestBody"
         "404":
           $ref: "#/components/responses/RecipeNotFound"
         "409":
@@ -114,7 +114,7 @@ paths:
         "204":
           description: Recipe successfully deleted
         "400":
-          $ref: '#/components/responses/InvalidPathVariable'
+          $ref: "#/components/responses/InvalidPathVariable"
         "404":
           $ref: "#/components/responses/RecipeNotFound"
         "500":
@@ -217,6 +217,7 @@ components:
     ProblemDetail:
       type: object
       description: RFC 9457 problem details object returned for all error responses.
+      required: [type, title, status]
       properties:
         type:
           type: string
@@ -257,8 +258,8 @@ components:
           examples: ["grams", "ml", "tablespoon"]
         quantity:
           type: number
-          description: Quantity of the ingredient. Can contain maximum 7 integer digits, and maximum 3 decimal digits.
-          exclusiveMinimum: 0
+          description: Quantity of the ingredient. Must be positive; can contain maximum 7 integer digits, and maximum 3 decimal digits.
+          minimum: 0.001
           x-field-extra-annotation: "@jakarta.validation.constraints.Digits(integer = 7, fraction = 3)"
           examples: [750, 133.33, 0.666]
     StepResponse:
@@ -329,4 +330,4 @@ components:
       schema:
         type: integer
         format: int64
-        exclusiveMinimum: 0
+        minimum: 1
