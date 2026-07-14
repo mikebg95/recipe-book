@@ -1,0 +1,38 @@
+package dev.michaelgoldman.recipebookbackend.controller;
+
+import dev.michaelgoldman.recipebookbackend.api.model.RecipeRequest;
+import dev.michaelgoldman.recipebookbackend.api.model.RecipeResponse;
+import dev.michaelgoldman.recipebookbackend.service.RecipeService;
+import jakarta.validation.Valid;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import java.net.URI;
+
+@RestController
+@RequestMapping(path = "/recipes")
+public class RecipeController {
+    private final RecipeService recipeService;
+
+    public RecipeController(RecipeService recipeService) {
+        this.recipeService = recipeService;
+    }
+
+    @PostMapping
+    public ResponseEntity<RecipeResponse> createRecipe(@RequestBody @Valid RecipeRequest request) {
+        RecipeResponse response = recipeService.createRecipe(request);
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(response.getId())
+                .toUri();
+
+        return ResponseEntity
+                .created(location)
+                .body(response);
+    }
+}
