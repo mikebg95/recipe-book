@@ -5,6 +5,8 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 
 @Repository
 public class RecipeRepositoryImpl implements RecipeRepository {
@@ -25,5 +27,11 @@ public class RecipeRepositoryImpl implements RecipeRepository {
                 .getSingleResult();
 
         return count > 0;
+    }
+
+    @Override
+    public List<Recipe> findAll() {
+        String jpql = "SELECT r FROM Recipe r";
+        return entityManager.createQuery(jpql, Recipe.class).getResultList();
     }
 }

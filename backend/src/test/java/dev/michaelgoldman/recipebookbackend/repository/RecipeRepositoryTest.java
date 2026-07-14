@@ -31,6 +31,7 @@ import static org.assertj.core.api.Assertions.as;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.assertj.core.api.InstanceOfAssertFactories.BIG_DECIMAL;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase.Replace.NONE;
@@ -359,7 +360,7 @@ class RecipeRepositoryTest {
     @DisplayName("ExistsByName")
     class ExistsByName {
         @Test
-        void ifExists_shouldReturnTrue() {
+        void whenExists_shouldReturnTrue() {
             // Arrange
             String name = "Feijoada";
             Recipe recipe = aRecipe().withName(name).build();
@@ -374,7 +375,7 @@ class RecipeRepositoryTest {
         }
 
         @Test
-        void ifDoesNotExist_shouldReturnFalse() {
+        void whenDoesNotExist_shouldReturnFalse() {
             // Arrange
             String name = "Feijoada";
 
@@ -386,7 +387,7 @@ class RecipeRepositoryTest {
         }
 
         @Test
-        void ifDifferentNameExists_shouldReturnFalse() {
+        void whenDifferentNameExists_shouldReturnFalse() {
             // Arrange
             Recipe differentNameRecipe = aRecipe().withName("Pad Thai").build();
             testEntityManager.persistAndFlush(differentNameRecipe);
@@ -397,6 +398,49 @@ class RecipeRepositoryTest {
 
             // Assert
             assertThat(exists).isFalse();
+        }
+    }
+
+    @Nested
+    @DisplayName("FindAllRecipes")
+    class FindAllRecipes {
+        @Test
+        void whenRecipesExist_shouldReturnListOfRecipes() {
+            // Arrange
+            Recipe carbonara = aCarbonara().build();
+            Recipe cacioEPepe = aCacioEPepe().build();
+            Recipe recipe = aRecipe().build();
+
+            testEntityManager.persistAndFlush(carbonara);
+            testEntityManager.persistAndFlush(cacioEPepe);
+            testEntityManager.persistAndFlush(recipe);
+            testEntityManager.clear();
+
+            // Act
+            List<Recipe> fetched = recipeRepository.findAll();
+
+            // Assert
+            assertThat(fetched)
+                    .extracting(Recipe::getName)
+                            .containsExactlyInAnyOrder(carbonara.getName(), cacioEPepe.getName(), recipe.getName());
+            assertThat(fetched)
+                    .extracting(Recipe::getName, r -> r.getIngredients().size())
+                    .containsExactlyInAnyOrder(
+                            tuple(carbonara.getName(), carbonara.getIngredients().size()),
+                            tuple(cacioEPepe.getName(), cacioEPepe.getIngredients().size()),
+                            tuple(recipe.getName(), recipe.getIngredients().size())
+                    );
+        }
+
+        @Test
+        void whenNoRecipesExist_shouldReturnEmptyList() {
+            // Arrange
+
+            // Act
+            List<Recipe> fetched = recipeRepository.findAll();
+
+            // Assert
+            assertThat(fetched).isEmpty();
         }
     }
 
