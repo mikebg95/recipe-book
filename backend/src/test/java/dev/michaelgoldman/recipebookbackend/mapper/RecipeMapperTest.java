@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 import static dev.michaelgoldman.recipebookbackend.api.model.RecipeRequestTestBuilder.aRecipeRequest;
@@ -136,6 +137,43 @@ class RecipeMapperTest {
 
             // Assert
             assertThat(response.getDescription()).isNull();
+        }
+    }
+
+    @Nested
+    @DisplayName("toResponseList")
+    class ToResponseList {
+        @Test
+        void whenEntityList_shouldMapToListOfResponses() {
+            // Arrange
+            List<Recipe> entities = List.of(
+                    aRecipe().withId(1L).withName("Steak").build(),
+                    aRecipe().withId(2L).withName("Pizza").build(),
+                    aRecipe().withId(3L).withName("Pasta").build()
+            );
+
+            // Act
+            List<RecipeResponse> responses = recipeMapper.toResponseList(entities);
+
+            // Assert
+            assertThat(responses)
+                    .extracting(RecipeResponse::getName)
+                    .containsExactly("Steak", "Pizza", "Pasta");
+            assertThat(responses)
+                    .extracting(RecipeResponse::getId)
+                    .containsExactly(1L, 2L, 3L);
+        }
+
+        @Test
+        void whenEmptyList_shouldMapToEmptyList() {
+            // Arrange
+            List<Recipe> emptyList = new ArrayList<>();
+
+            // Act
+            List<RecipeResponse> result = recipeMapper.toResponseList(emptyList);
+
+            // Assert
+            assertThat(result).isEmpty();
         }
     }
 

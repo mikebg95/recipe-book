@@ -9,8 +9,19 @@ import dev.michaelgoldman.recipebookbackend.entity.Recipe;
 import dev.michaelgoldman.recipebookbackend.entity.Step;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Component
 public class RecipeMapper {
+    public List<RecipeResponse> toResponseList(List<Recipe> entities) {
+        List<RecipeResponse> responseList = new ArrayList<>();
+        for (Recipe entity : entities) {
+            responseList.add(toResponse(entity));
+        }
+        return responseList;
+    }
+
     public Recipe toEntity(RecipeRequest request) {
         String description = (request.getDescription() == null || request.getDescription().isBlank())
                 ? null
