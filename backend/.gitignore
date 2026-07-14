@@ -1,6 +1,11 @@
 HELP.md
 CLAUDE.md
 STANDARDS.md
+ARCHITECTURE.md
+PERSONAL_CONTEXT.md
+RECIPE_BOOK_INSTRUCTIONS.md
+TEACHER_MODE.md
+TESTING.md
 target/
 .mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
