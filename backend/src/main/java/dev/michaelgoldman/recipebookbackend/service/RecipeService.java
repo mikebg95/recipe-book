@@ -9,6 +9,8 @@ import dev.michaelgoldman.recipebookbackend.repository.RecipeRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 public class RecipeService {
     private final RecipeRepository recipeRepository;
@@ -28,5 +30,9 @@ public class RecipeService {
         Recipe recipe = recipeMapper.toEntity(request);
         Recipe saved = recipeRepository.save(recipe);
         return recipeMapper.toResponse(saved);
+    }
+
+    public List<RecipeResponse> getAll() {
+        return recipeMapper.toResponseList(recipeRepository.findAll());
     }
 }

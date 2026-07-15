@@ -14,6 +14,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Collections;
+import java.util.List;
+
 import static dev.michaelgoldman.recipebookbackend.api.model.RecipeRequestTestBuilder.aRecipeRequest;
 import static dev.michaelgoldman.recipebookbackend.api.model.RecipeResponseTestBuilder.aRecipeResponse;
 import static dev.michaelgoldman.recipebookbackend.entity.RecipeTestBuilder.aRecipe;
@@ -68,6 +71,41 @@ class RecipeServiceTest {
                     .isInstanceOf(RecipeNameAlreadyExistsException.class)
                     .hasMessageContaining(name);
             verify(recipeRepository, never()).save(any());
+        }
+    }
+
+    @Nested
+    @DisplayName("getAllRecipes")
+    class GetAllRecipes {
+        @Test
+        void whenRecipesExist_shouldReturnMappedResponse() {
+            // Arrange
+            List<RecipeResponse> responses = List.of(aRecipeResponse().build(), aRecipeResponse().build());
+
+            List<Recipe> entities = List.of(aRecipe().withName("Steak").build(), aRecipe().withName("Pizza").build());
+            when(recipeRepository.findAll()).thenReturn(entities);
+            when(recipeMapper.toResponseList(entities)).thenReturn(responses);
+
+            // Act
+            List<RecipeResponse> fetched = recipeService.getAll();
+
+            // Assert
+            assertThat(fetched).isEqualTo(responses);
+        }
+
+        @Test
+        void whenNoRecipesExist_shouldReturnEmptyListResponse() {
+            // Arrange
+            List<Recipe> entities = Collections.emptyList();
+            List<RecipeResponse> responses = Collections.emptyList();
+            when(recipeRepository.findAll()).thenReturn(entities);
+            when(recipeMapper.toResponseList(entities)).thenReturn(responses);
+
+            // Act
+            List<RecipeResponse> fetched = recipeService.getAll();
+
+            // Assert
+            assertThat(fetched).isEqualTo(responses);
         }
     }
 }
