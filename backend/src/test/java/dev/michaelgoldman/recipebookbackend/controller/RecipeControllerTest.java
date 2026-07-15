@@ -5,6 +5,7 @@ import dev.michaelgoldman.recipebookbackend.api.model.RecipeRequest;
 import dev.michaelgoldman.recipebookbackend.api.model.RecipeResponse;
 import dev.michaelgoldman.recipebookbackend.config.WebConfig;
 import dev.michaelgoldman.recipebookbackend.exception.GlobalExceptionHandler;
+import dev.michaelgoldman.recipebookbackend.exception.RecipeDoesNotExistException;
 import dev.michaelgoldman.recipebookbackend.service.RecipeService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -38,6 +39,7 @@ import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.endsWith;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -51,6 +53,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(RecipeController.class)
 @Import({WebConfig.class, GlobalExceptionHandler.class})
 public class RecipeControllerTest {
+    private static final Long DOES_NOT_EXIST_ID = 999L;
+    private static final String NOT_FOUND_DETAIL = "No recipe found with id + " + DOES_NOT_EXIST_ID;
+
     @Autowired
     private ObjectMapper objectMapper;
 
@@ -298,6 +303,49 @@ public class RecipeControllerTest {
         }
     }
 
+    @Nested
+    @DisplayName("GET /recipe/{id}")
+    class GetRecipeById {
+        @Test
+        void whenRecipeExists_shouldReturn200WithRecipeResponse() throws Exception {
+            // Arrange
+            Long recipeId = 3L;
+            RecipeResponse response = aRecipeResponse().withId(recipeId).build();
+            when(recipeService.getById(recipeId)).thenReturn(response);
+
+            // Act & Assert
+            mockMvc.perform(getRecipe(recipeId))
+                    .andExpect(status().isOk())
+                    .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(jsonPath("$.id").value(recipeId));
+        }
+
+        @Test
+        void whenRecipeDoesNotExist_shouldReturn404() throws Exception {
+            // Arrange
+            when(recipeService.getById(DOES_NOT_EXIST_ID)).thenThrow(new RecipeDoesNotExistException(DOES_NOT_EXIST_ID));
+
+            // Act & Assert
+            mockMvc.perform(getRecipe(DOES_NOT_EXIST_ID))
+                    .andExpect(status().isNotFound())
+                    .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
+                    .andExpect(jsonPath("$.status").value(HttpStatus.NOT_FOUND.value()))
+                    .andExpect(jsonPath("$.title").value("Recipe not found."))
+                    .andExpect(jsonPath("$.detail").value(NOT_FOUND_DETAIL));
+        }
+
+        @ParameterizedTest
+        @ValueSource(strings = { "-1", "0", "1.5", "abc" })
+        void whenInvalidIdProvided_shouldReturn400(String id) throws Exception {
+            // Act & Assert
+            mockMvc.perform(getRecipe(id))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON));
+
+            verify(recipeService, never()).getById(anyLong());
+        }
+    }
+
     private MockHttpServletRequestBuilder postRecipe() {
         return post("/api/v1/recipes")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -306,6 +354,11 @@ public class RecipeControllerTest {
 
     private MockHttpServletRequestBuilder getRecipes() {
         return get("/api/v1/recipes")
+                .accept(MediaType.APPLICATION_JSON);
+    }
+
+    private MockHttpServletRequestBuilder getRecipe(Object id) {
+        return get("/api/v1/recipes/{id}", id)
                 .accept(MediaType.APPLICATION_JSON);
     }
 

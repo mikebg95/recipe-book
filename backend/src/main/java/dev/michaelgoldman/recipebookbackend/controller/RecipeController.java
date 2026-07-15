@@ -4,8 +4,10 @@ import dev.michaelgoldman.recipebookbackend.api.model.RecipeRequest;
 import dev.michaelgoldman.recipebookbackend.api.model.RecipeResponse;
 import dev.michaelgoldman.recipebookbackend.service.RecipeService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -42,5 +44,11 @@ public class RecipeController {
     public ResponseEntity<List<RecipeResponse>> getRecipes() {
         List<RecipeResponse> responses = recipeService.getAll();
         return ResponseEntity.ok(responses);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<RecipeResponse> getRecipeById(@PathVariable @Positive Long id) {
+        RecipeResponse response = recipeService.getById(id);
+        return ResponseEntity.ok(response);
     }
 }
