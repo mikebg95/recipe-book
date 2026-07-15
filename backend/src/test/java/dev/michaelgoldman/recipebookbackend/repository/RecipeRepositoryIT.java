@@ -40,7 +40,7 @@ import static org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTest
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = NONE)
 @Import({TestcontainersConfiguration.class, RecipeRepositoryImpl.class})
-class RecipeRepositoryTest {
+class RecipeRepositoryIT {
     private static final List<String> CARBONARA_STEPS_DESCRIPTIONS = List.of(
             "Crisp the diced guanciale in a pan over medium heat; set the rendered fat and meat aside.",
             "Whisk egg yolks, Pecorino Romano, and plenty of cracked black pepper in a bowl to form a thick paste.",

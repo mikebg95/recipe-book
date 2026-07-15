@@ -31,6 +31,8 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class RecipeServiceTest {
+    private final static Long NON_EXISTING_ID = 999L;
+
     @InjectMocks
     RecipeService recipeService;
 
@@ -133,14 +135,41 @@ class RecipeServiceTest {
         @Test
         void whenRecipeDoesNotExist_shouldThrowRecipeDoesNotExistException() {
             // Arrange
-            Long doesNotExistId = 99L;
             Optional<Recipe> empty = Optional.empty();
-            when(recipeRepository.findById(doesNotExistId)).thenReturn(empty);
+            when(recipeRepository.findById(NON_EXISTING_ID)).thenReturn(empty);
 
             // Act & Assert
-            assertThatThrownBy(() -> recipeService.getById(doesNotExistId))
+            assertThatThrownBy(() -> recipeService.getById(NON_EXISTING_ID))
                     .isInstanceOf(RecipeDoesNotExistException.class)
-                    .hasMessageContaining(String.valueOf(doesNotExistId));
+                    .hasMessageContaining(String.valueOf(NON_EXISTING_ID));
+        }
+    }
+
+    @Nested
+    @DisplayName("deleteRecipeById")
+    class DeleteRecipeById {
+        @Test
+        void whenRecipeExists_shouldDeleteSuccessfully() {
+            // Arrange
+            Long recipeId = 1L;
+            when(recipeRepository.deleteById(recipeId)).thenReturn(true);
+
+            // Act
+            recipeService.deleteById(recipeId);
+
+            // Assert
+            verify(recipeRepository).deleteById(recipeId);
+        }
+
+        @Test
+        void whenNonExistingRecipeIdProvided_shouldThrowRecipeDoesNotExistException() {
+            // Arrange
+            when(recipeRepository.deleteById(NON_EXISTING_ID)).thenReturn(false);
+
+            // Act & Assert
+            assertThatThrownBy(() -> recipeService.deleteById(NON_EXISTING_ID))
+                    .isInstanceOf(RecipeDoesNotExistException.class)
+                    .hasMessageContaining(String.valueOf(NON_EXISTING_ID));
         }
     }
 }

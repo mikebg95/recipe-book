@@ -8,7 +8,6 @@ import dev.michaelgoldman.recipebookbackend.exception.RecipeNameAlreadyExistsExc
 import dev.michaelgoldman.recipebookbackend.mapper.RecipeMapper;
 import dev.michaelgoldman.recipebookbackend.repository.RecipeRepository;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -23,7 +22,7 @@ public class RecipeService {
         this.recipeMapper = recipeMapper;
     }
 
-    @Transactional
+    // TODO: @Transactional
     public RecipeResponse createRecipe(RecipeRequest request) {
         if (recipeRepository.existsByName(request.getName())) {
             throw new RecipeNameAlreadyExistsException(request.getName());
@@ -38,11 +37,20 @@ public class RecipeService {
         return recipeMapper.toResponseList(recipeRepository.findAll());
     }
 
+    // TODO: @Transactional
     public RecipeResponse getById(Long id) {
         Optional<Recipe> recipeOptional = recipeRepository.findById(id);
         if (recipeOptional.isEmpty()) {
             throw new RecipeDoesNotExistException(id);
         }
         return recipeMapper.toResponse(recipeOptional.get());
+    }
+
+    // TODO: @Transactional
+    public void deleteById(Long id) {
+        boolean isDeleted = recipeRepository.deleteById(id);
+        if (!isDeleted) {
+            throw new RecipeDoesNotExistException(id);
+        }
     }
 }
