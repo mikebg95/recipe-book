@@ -40,9 +40,11 @@ import static org.hamcrest.Matchers.endsWith;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -53,8 +55,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(RecipeController.class)
 @Import({WebConfig.class, GlobalExceptionHandler.class})
 public class RecipeControllerTest {
-    private static final Long DOES_NOT_EXIST_ID = 999L;
-    private static final String NOT_FOUND_DETAIL = "No recipe found with id + " + DOES_NOT_EXIST_ID;
+    private static final Long RECIPE_ID = 1L;
+    private static final Long NON_EXISTING_ID = 999L;
+    private static final String NOT_FOUND_DETAIL = "No recipe found with id + " + NON_EXISTING_ID;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -89,49 +92,49 @@ public class RecipeControllerTest {
             Ingredient duplicate = new Ingredient("Bacon", "kg", new BigDecimal("2"));
             RecipeRequest request = aRecipeRequest().withIngredients(ingredient, duplicate).build();
 
-            assertReturns400(toJson(request));
+            assertCreateReturns400(toJson(request));
         }
 
         @ParameterizedTest(name = "{0}")
         @MethodSource("emptyLists")
         @DisplayName("list with length zero should return 400")
         void whenRequiredListIsEmpty_shouldReturn400(String scenario, RecipeRequest request) throws Exception {
-            assertReturns400(toJson(request));
+            assertCreateReturns400(toJson(request));
         }
 
         @ParameterizedTest(name = "{0}")
         @MethodSource("nullValues")
         @DisplayName("null values for non-nullable fields should return 400")
         void whenRequiredFieldIsNull_shouldReturn400(String scenario, RecipeRequest request) throws Exception {
-            assertReturns400(toJson(request));
+            assertCreateReturns400(toJson(request));
         }
 
         @ParameterizedTest(name = "{0}")
         @MethodSource("emptyStrings")
         @DisplayName("empty strings should return 400")
         void whenRequiredStringIsBlank_shouldReturn400(String scenario, RecipeRequest request) throws Exception {
-            assertReturns400(toJson(request));
+            assertCreateReturns400(toJson(request));
         }
 
         @ParameterizedTest(name = "{0}")
         @MethodSource("tooLongValues")
         @DisplayName("values exceeding limit should return 400")
         void whenValueExceedsLimit_shouldReturn400(String scenario, RecipeRequest request) throws Exception {
-            assertReturns400(toJson(request));
+            assertCreateReturns400(toJson(request));
         }
 
         @ParameterizedTest(name = "{0}")
         @MethodSource("nonPositiveQuantities")
         @DisplayName("invalid values should return 400")
         void whenQuantityIsZeroOrNegative_shouldReturn400(String scenario, RecipeRequest request) throws Exception {
-            assertReturns400(toJson(request));
+            assertCreateReturns400(toJson(request));
         }
 
         @ParameterizedTest(name = "{0}")
         @MethodSource("malformedJsonBodies")
         @DisplayName("invalid json should return 400")
         void whenInvalidJson_shouldReturn400(String scenario, String requestJson) throws Exception {
-            assertReturns400(requestJson);
+            assertCreateReturns400(requestJson);
         }
 
         @Test
@@ -304,29 +307,28 @@ public class RecipeControllerTest {
     }
 
     @Nested
-    @DisplayName("GET /recipe/{id}")
+    @DisplayName("GET /recipes/{id}")
     class GetRecipeById {
         @Test
         void whenRecipeExists_shouldReturn200WithRecipeResponse() throws Exception {
             // Arrange
-            Long recipeId = 3L;
-            RecipeResponse response = aRecipeResponse().withId(recipeId).build();
-            when(recipeService.getById(recipeId)).thenReturn(response);
+            RecipeResponse response = aRecipeResponse().withId(RECIPE_ID).build();
+            when(recipeService.getById(RECIPE_ID)).thenReturn(response);
 
             // Act & Assert
-            mockMvc.perform(getRecipe(recipeId))
+            mockMvc.perform(getRecipe(RECIPE_ID))
                     .andExpect(status().isOk())
                     .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                    .andExpect(jsonPath("$.id").value(recipeId));
+                    .andExpect(jsonPath("$.id").value(RECIPE_ID));
         }
 
         @Test
         void whenRecipeDoesNotExist_shouldReturn404() throws Exception {
             // Arrange
-            when(recipeService.getById(DOES_NOT_EXIST_ID)).thenThrow(new RecipeDoesNotExistException(DOES_NOT_EXIST_ID));
+            when(recipeService.getById(NON_EXISTING_ID)).thenThrow(new RecipeDoesNotExistException(NON_EXISTING_ID));
 
             // Act & Assert
-            mockMvc.perform(getRecipe(DOES_NOT_EXIST_ID))
+            mockMvc.perform(getRecipe(NON_EXISTING_ID))
                     .andExpect(status().isNotFound())
                     .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
                     .andExpect(jsonPath("$.status").value(HttpStatus.NOT_FOUND.value()))
@@ -346,6 +348,46 @@ public class RecipeControllerTest {
         }
     }
 
+    @Nested
+    @DisplayName("DELETE /recipes/{id}")
+    class DeleteRecipeById {
+        @Test
+        void whenRecipeExists_shouldReturn204AndPassRecipeIdToService() throws Exception {
+            // Act & Assert
+            mockMvc.perform(deleteRecipe(RECIPE_ID))
+                    .andExpect(status().isNoContent());
+
+            // Assert
+            verify(recipeService).deleteById(RECIPE_ID);
+        }
+
+        @Test
+        void whenNonExistingIdProvided_shouldReturn404() throws Exception {
+            // Arrange
+            doThrow(new RecipeDoesNotExistException(NON_EXISTING_ID))
+                    .when(recipeService).deleteById(NON_EXISTING_ID);
+
+            // Act & Assert
+            mockMvc.perform(deleteRecipe(NON_EXISTING_ID))
+                    .andExpect(status().isNotFound())
+                    .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
+                    .andExpect(jsonPath("$.status").value(HttpStatus.NOT_FOUND.value()))
+                    .andExpect(jsonPath("$.title").value("Recipe not found."))
+                    .andExpect(jsonPath("$.detail").value(NOT_FOUND_DETAIL));
+        }
+
+        @ParameterizedTest
+        @ValueSource(strings = {"-1", "0", "1.5", "abc"})
+        void whenInvalidIdProvided_shouldReturn400(String recipeId) throws Exception {
+            // Act & Assert
+            mockMvc.perform(deleteRecipe(recipeId))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON));
+
+            verify(recipeService, never()).deleteById(anyLong());
+        }
+    }
+
     private MockHttpServletRequestBuilder postRecipe() {
         return post("/api/v1/recipes")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -360,6 +402,10 @@ public class RecipeControllerTest {
     private MockHttpServletRequestBuilder getRecipe(Object id) {
         return get("/api/v1/recipes/{id}", id)
                 .accept(MediaType.APPLICATION_JSON);
+    }
+
+    private MockHttpServletRequestBuilder deleteRecipe(Object id) {
+        return delete("/api/v1/recipes/{id}", id);
     }
 
     private String toJson(Object obj) {
@@ -382,11 +428,11 @@ public class RecipeControllerTest {
         verify(recipeService).createRecipe(request);
     }
 
-    private void assertReturns400(String jsonRequest) throws Exception {
+    private void assertCreateReturns400(String jsonRequest) throws Exception {
         mockMvc.perform(postRecipe().content(jsonRequest))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON));
 
-        verify(recipeService, never()).createRecipe(any());
+        verify(recipeService, never()).createRecipe(any(RecipeRequest.class));
     }
 }
