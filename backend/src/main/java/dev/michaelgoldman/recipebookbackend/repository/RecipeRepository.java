@@ -10,4 +10,5 @@ public interface RecipeRepository {
     boolean existsByName(String recipeName);
     List<Recipe> findAll();
     Optional<Recipe> findById(Long id);
+    boolean deleteById(Long id);
 }

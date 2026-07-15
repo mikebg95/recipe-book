@@ -453,9 +453,7 @@ class RecipeRepositoryTest {
             // Arrange
             String name = "Pizza";
             Recipe recipe = aRecipe().withName(name).build();
-            Recipe saved = testEntityManager.persistAndFlush(recipe);
-            Long savedId = saved.getId();
-            testEntityManager.clear();
+            Long savedId = saveAndReload(recipe).getId();
 
             // Act
             Optional<Recipe> fetched = recipeRepository.findById(savedId);
@@ -490,12 +488,71 @@ class RecipeRepositoryTest {
         }
 
         @Test
-        void whenRecipeDoesNotExist_shouldReturnEmptyOptional() {
+        void whenNonExistingIdProvided_shouldReturnEmptyOptional() {
             // Act
             Optional<Recipe> fetched = recipeRepository.findById(99L);
 
             // Assert
             assertThat(fetched).isEmpty();
+        }
+    }
+
+    @Nested
+    @DisplayName("DeleteRecipeById")
+    class DeleteRecipeById {
+        @Test
+        void whenRecipeExists_shouldDeleteSuccessfullyAndReturnTrue() {
+            // Arrange
+            Recipe recipe1 = aRecipe().withName("Steak").build();
+            Recipe recipe2 = aRecipe().withName("Pizza").build();
+            Recipe recipe3 = aRecipe().withName("Pasta").build();
+            Long savedId1 = saveAndReload(recipe1).getId();
+            Long savedId2 = saveAndReload(recipe2).getId();
+            Long savedId3 = saveAndReload(recipe3).getId();
+
+            // Act
+            boolean isDeleted = recipeRepository.deleteById(savedId2);
+            testEntityManager.flush();
+            testEntityManager.clear();
+
+            // Assert
+            assertThat(isDeleted).isTrue();
+            assertThat(testEntityManager.find(Recipe.class, savedId2)).isNull();
+
+            String jpqlRecipesCount = "SELECT COUNT(r) FROM Recipe r";
+            Long recipesCount = testEntityManager.getEntityManager()
+                    .createQuery(jpqlRecipesCount, Long.class)
+                    .getSingleResult();
+            assertThat(recipesCount).isEqualTo(2);
+
+            String jpqlIngredients = "SELECT i FROM Ingredient i";
+            List<Ingredient> ingredients = testEntityManager.getEntityManager()
+                    .createQuery(jpqlIngredients, Ingredient.class)
+                    .getResultList();
+
+            assertThat(ingredients)
+                    .extracting(Ingredient::getRecipe)
+                    .extracting(Recipe::getId)
+                    .containsExactlyInAnyOrder(savedId1, savedId3);
+
+            String jpqlSteps = "SELECT s FROM Step s";
+            List<Step> steps = testEntityManager.getEntityManager()
+                    .createQuery(jpqlSteps, Step.class)
+                    .getResultList();
+
+            assertThat(steps)
+                    .extracting(Step::getRecipe)
+                    .extracting(Recipe::getId)
+                    .containsExactlyInAnyOrder(savedId1, savedId3);
+        }
+
+        @Test
+        void whenNonExistingIdProvided_shouldReturnFalse() {
+            // Act
+            boolean isDeleted = recipeRepository.deleteById(999L);
+
+            // Assert
+            assertThat(isDeleted).isFalse();
         }
     }
 

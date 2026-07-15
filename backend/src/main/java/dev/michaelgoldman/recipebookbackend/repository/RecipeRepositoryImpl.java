@@ -40,4 +40,14 @@ public class RecipeRepositoryImpl implements RecipeRepository {
     public Optional<Recipe> findById(Long id) {
         return Optional.ofNullable(entityManager.find(Recipe.class, id));
     }
+
+    @Override
+    public boolean deleteById(Long id) {
+        Recipe recipe = entityManager.find(Recipe.class, id);
+        if (recipe != null) {
+            entityManager.remove(recipe);
+            return true;
+        }
+        return false;
+    }
 }
