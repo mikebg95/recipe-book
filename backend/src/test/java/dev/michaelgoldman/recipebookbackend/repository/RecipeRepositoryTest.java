@@ -23,6 +23,7 @@ import org.springframework.context.annotation.Import;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import static dev.michaelgoldman.recipebookbackend.entity.IngredientTestBuilder.anIngredient;
@@ -438,6 +439,60 @@ class RecipeRepositoryTest {
 
             // Act
             List<Recipe> fetched = recipeRepository.findAll();
+
+            // Assert
+            assertThat(fetched).isEmpty();
+        }
+    }
+
+    @Nested
+    @DisplayName("FindRecipeById")
+    class FindRecipeById {
+        @Test
+        void whenRecipeExists_shouldReturnFullyPersistedRecipeWithGeneratedId() {
+            // Arrange
+            String name = "Pizza";
+            Recipe recipe = aRecipe().withName(name).build();
+            Recipe saved = testEntityManager.persistAndFlush(recipe);
+            Long savedId = saved.getId();
+            testEntityManager.clear();
+
+            // Act
+            Optional<Recipe> fetched = recipeRepository.findById(savedId);
+
+            // Assert
+            List<String> expectedIngredientNames = recipe.getIngredients().stream().map(Ingredient::getName).toList();
+            List<String> expectedIngredientUnits = recipe.getIngredients().stream().map(Ingredient::getUnit).toList();
+            List<BigDecimal> expectedIngredientQuantities = recipe.getIngredients().stream().map(Ingredient::getQuantity).toList();
+            List<String> expectedStepDescriptions = recipe.getSteps().stream().map(Step::getDescription).toList();
+            List<Integer> expectedStepNumbers = recipe.getSteps().stream().map(Step::getStepNumber).toList();
+
+            assertThat(fetched).isNotEmpty();
+            assertThat(fetched.get().getId()).isEqualTo(savedId);
+            assertThat(fetched.get().getName()).isEqualTo(recipe.getName());
+            assertThat(fetched.get().getDescription()).isEqualTo(recipe.getDescription());
+            assertThat(fetched.get().getIngredients())
+                    .extracting(Ingredient::getName)
+                    .containsExactlyInAnyOrderElementsOf(expectedIngredientNames);
+            assertThat(fetched.get().getIngredients())
+                    .extracting(Ingredient::getUnit)
+                    .containsExactlyInAnyOrderElementsOf(expectedIngredientUnits);
+            assertThat(fetched.get().getIngredients())
+                    .extracting(Ingredient::getQuantity)
+                    .usingElementComparator(BigDecimal::compareTo)
+                    .containsExactlyInAnyOrderElementsOf(expectedIngredientQuantities);
+            assertThat(fetched.get().getSteps())
+                    .extracting(Step::getDescription)
+                    .containsExactlyElementsOf(expectedStepDescriptions);
+            assertThat(fetched.get().getSteps())
+                    .extracting(Step::getStepNumber)
+                    .containsExactlyElementsOf(expectedStepNumbers);
+        }
+
+        @Test
+        void whenRecipeDoesNotExist_shouldReturnEmptyOptional() {
+            // Act
+            Optional<Recipe> fetched = recipeRepository.findById(99L);
 
             // Assert
             assertThat(fetched).isEmpty();

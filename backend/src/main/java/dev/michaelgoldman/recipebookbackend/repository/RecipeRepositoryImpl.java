@@ -6,6 +6,7 @@ import jakarta.persistence.PersistenceContext;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 
 @Repository
@@ -33,5 +34,10 @@ public class RecipeRepositoryImpl implements RecipeRepository {
     public List<Recipe> findAll() {
         String jpql = "SELECT r FROM Recipe r";
         return entityManager.createQuery(jpql, Recipe.class).getResultList();
+    }
+
+    @Override
+    public Optional<Recipe> findById(Long id) {
+        return Optional.ofNullable(entityManager.find(Recipe.class, id));
     }
 }
