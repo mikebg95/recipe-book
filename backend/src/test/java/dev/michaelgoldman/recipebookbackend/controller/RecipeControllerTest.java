@@ -34,12 +34,14 @@ import java.util.stream.Stream;
 import static dev.michaelgoldman.recipebookbackend.api.model.IngredientTestBuilder.anIngredient;
 import static dev.michaelgoldman.recipebookbackend.api.model.RecipeRequestTestBuilder.aRecipeRequest;
 import static dev.michaelgoldman.recipebookbackend.api.model.RecipeResponseTestBuilder.aRecipeResponse;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.endsWith;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
@@ -260,9 +262,50 @@ public class RecipeControllerTest {
         }
     }
 
+    @Nested
+    @DisplayName("GET /recipes")
+    class GetRecipes {
+        @Test
+        void whenRecipesExist_shouldReturn200WithListOfRecipeResponses() throws Exception {
+            // Arrange
+            List<RecipeResponse> responses = List.of(
+                    aRecipeResponse().withId(1L).withName("Pizza").build(),
+                    aRecipeResponse().withId(2L).withName("Steak").build(),
+                    aRecipeResponse().withId(3L).withName("Pasta").build()
+            );
+            when(recipeService.getAll()).thenReturn(responses);
+
+            // Act & Assert
+            mockMvc.perform(getRecipes())
+                    .andExpect(status().isOk())
+                    .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(jsonPath("$[*].id", contains(1, 2, 3)))
+                    .andExpect(jsonPath("$[*].name", contains("Pizza", "Steak", "Pasta")));
+        }
+
+        @Test
+        void whenNoRecipesExist_shouldReturn200withEmptyList() throws Exception {
+            // Arrange
+            List<RecipeResponse> responses = Collections.emptyList();
+            when(recipeService.getAll()).thenReturn(responses);
+
+            // Act & Assert
+            mockMvc.perform(getRecipes())
+                    .andExpect(status().isOk())
+                    .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(jsonPath("$").isArray())
+                    .andExpect(jsonPath("$.length()").value(0));
+        }
+    }
+
     private MockHttpServletRequestBuilder postRecipe() {
         return post("/api/v1/recipes")
                 .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON);
+    }
+
+    private MockHttpServletRequestBuilder getRecipes() {
+        return get("/api/v1/recipes")
                 .accept(MediaType.APPLICATION_JSON);
     }
 
