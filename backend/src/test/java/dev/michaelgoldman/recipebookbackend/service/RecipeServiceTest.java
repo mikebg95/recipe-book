@@ -2,6 +2,7 @@ package dev.michaelgoldman.recipebookbackend.service;
 
 import dev.michaelgoldman.recipebookbackend.api.model.RecipeRequest;
 import dev.michaelgoldman.recipebookbackend.api.model.RecipeResponse;
+import dev.michaelgoldman.recipebookbackend.api.model.RecipeSummaryResponse;
 import dev.michaelgoldman.recipebookbackend.entity.Recipe;
 import dev.michaelgoldman.recipebookbackend.exception.RecipeDoesNotExistException;
 import dev.michaelgoldman.recipebookbackend.exception.RecipeNameAlreadyExistsException;
@@ -21,6 +22,7 @@ import java.util.Optional;
 
 import static dev.michaelgoldman.recipebookbackend.api.model.RecipeRequestTestBuilder.aRecipeRequest;
 import static dev.michaelgoldman.recipebookbackend.api.model.RecipeResponseTestBuilder.aRecipeResponse;
+import static dev.michaelgoldman.recipebookbackend.api.model.RecipeSummaryResponseTestBuilder.aRecipeSummaryResponse;
 import static dev.michaelgoldman.recipebookbackend.entity.RecipeTestBuilder.aRecipe;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -84,14 +86,14 @@ class RecipeServiceTest {
         @Test
         void whenRecipesExist_shouldReturnMappedResponse() {
             // Arrange
-            List<RecipeResponse> responses = List.of(aRecipeResponse().build(), aRecipeResponse().build());
+            List<RecipeSummaryResponse> responses = List.of(aRecipeSummaryResponse().build(), aRecipeSummaryResponse().build());
 
             List<Recipe> entities = List.of(aRecipe().withName("Steak").build(), aRecipe().withName("Pizza").build());
             when(recipeRepository.findAll()).thenReturn(entities);
             when(recipeMapper.toResponseList(entities)).thenReturn(responses);
 
             // Act
-            List<RecipeResponse> fetched = recipeService.getAll();
+            List<RecipeSummaryResponse> fetched = recipeService.getAll();
 
             // Assert
             assertThat(fetched).isEqualTo(responses);
@@ -101,12 +103,12 @@ class RecipeServiceTest {
         void whenNoRecipesExist_shouldReturnEmptyListResponse() {
             // Arrange
             List<Recipe> entities = Collections.emptyList();
-            List<RecipeResponse> responses = Collections.emptyList();
+            List<RecipeSummaryResponse> responses = Collections.emptyList();
             when(recipeRepository.findAll()).thenReturn(entities);
             when(recipeMapper.toResponseList(entities)).thenReturn(responses);
 
             // Act
-            List<RecipeResponse> fetched = recipeService.getAll();
+            List<RecipeSummaryResponse> fetched = recipeService.getAll();
 
             // Assert
             assertThat(fetched).isEqualTo(responses);

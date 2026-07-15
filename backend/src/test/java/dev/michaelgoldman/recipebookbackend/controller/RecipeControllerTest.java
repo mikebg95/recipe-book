@@ -3,6 +3,7 @@ package dev.michaelgoldman.recipebookbackend.controller;
 import dev.michaelgoldman.recipebookbackend.api.model.Ingredient;
 import dev.michaelgoldman.recipebookbackend.api.model.RecipeRequest;
 import dev.michaelgoldman.recipebookbackend.api.model.RecipeResponse;
+import dev.michaelgoldman.recipebookbackend.api.model.RecipeSummaryResponse;
 import dev.michaelgoldman.recipebookbackend.config.WebConfig;
 import dev.michaelgoldman.recipebookbackend.exception.GlobalExceptionHandler;
 import dev.michaelgoldman.recipebookbackend.exception.RecipeDoesNotExistException;
@@ -35,6 +36,7 @@ import java.util.stream.Stream;
 import static dev.michaelgoldman.recipebookbackend.api.model.IngredientTestBuilder.anIngredient;
 import static dev.michaelgoldman.recipebookbackend.api.model.RecipeRequestTestBuilder.aRecipeRequest;
 import static dev.michaelgoldman.recipebookbackend.api.model.RecipeResponseTestBuilder.aRecipeResponse;
+import static dev.michaelgoldman.recipebookbackend.api.model.RecipeSummaryResponseTestBuilder.aRecipeSummaryResponse;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.endsWith;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
@@ -276,10 +278,10 @@ public class RecipeControllerTest {
         @Test
         void whenRecipesExist_shouldReturn200WithListOfRecipeResponses() throws Exception {
             // Arrange
-            List<RecipeResponse> responses = List.of(
-                    aRecipeResponse().withId(1L).withName("Pizza").build(),
-                    aRecipeResponse().withId(2L).withName("Steak").build(),
-                    aRecipeResponse().withId(3L).withName("Pasta").build()
+            List<RecipeSummaryResponse> responses = List.of(
+                    aRecipeSummaryResponse().withId(1L).withName("Pizza").build(),
+                    aRecipeSummaryResponse().withId(2L).withName("Steak").build(),
+                    aRecipeSummaryResponse().withId(3L).withName("Pasta").build()
             );
             when(recipeService.getAll()).thenReturn(responses);
 
@@ -294,7 +296,7 @@ public class RecipeControllerTest {
         @Test
         void whenNoRecipesExist_shouldReturn200withEmptyList() throws Exception {
             // Arrange
-            List<RecipeResponse> responses = Collections.emptyList();
+            List<RecipeSummaryResponse> responses = Collections.emptyList();
             when(recipeService.getAll()).thenReturn(responses);
 
             // Act & Assert

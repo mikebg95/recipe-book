@@ -2,6 +2,7 @@ package dev.michaelgoldman.recipebookbackend.service;
 
 import dev.michaelgoldman.recipebookbackend.api.model.RecipeRequest;
 import dev.michaelgoldman.recipebookbackend.api.model.RecipeResponse;
+import dev.michaelgoldman.recipebookbackend.api.model.RecipeSummaryResponse;
 import dev.michaelgoldman.recipebookbackend.entity.Recipe;
 import dev.michaelgoldman.recipebookbackend.exception.RecipeDoesNotExistException;
 import dev.michaelgoldman.recipebookbackend.exception.RecipeNameAlreadyExistsException;
@@ -33,7 +34,7 @@ public class RecipeService {
         return recipeMapper.toResponse(saved);
     }
 
-    public List<RecipeResponse> getAll() {
+    public List<RecipeSummaryResponse> getAll() {
         return recipeMapper.toResponseList(recipeRepository.findAll());
     }
 

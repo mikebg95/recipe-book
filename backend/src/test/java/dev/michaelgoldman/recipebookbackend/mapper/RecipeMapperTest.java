@@ -3,6 +3,7 @@ package dev.michaelgoldman.recipebookbackend.mapper;
 import dev.michaelgoldman.recipebookbackend.api.model.Ingredient;
 import dev.michaelgoldman.recipebookbackend.api.model.RecipeRequest;
 import dev.michaelgoldman.recipebookbackend.api.model.RecipeResponse;
+import dev.michaelgoldman.recipebookbackend.api.model.RecipeSummaryResponse;
 import dev.michaelgoldman.recipebookbackend.api.model.StepResponse;
 import dev.michaelgoldman.recipebookbackend.entity.Recipe;
 import dev.michaelgoldman.recipebookbackend.entity.Step;
@@ -153,15 +154,21 @@ class RecipeMapperTest {
             );
 
             // Act
-            List<RecipeResponse> responses = recipeMapper.toResponseList(entities);
+            List<RecipeSummaryResponse> responses = recipeMapper.toResponseList(entities);
 
             // Assert
             assertThat(responses)
-                    .extracting(RecipeResponse::getName)
+                    .extracting(RecipeSummaryResponse::getId)
+                    .containsExactly(1L, 2L, 3L);
+            assertThat(responses)
+                    .extracting(RecipeSummaryResponse::getName)
                     .containsExactly("Steak", "Pizza", "Pasta");
             assertThat(responses)
-                    .extracting(RecipeResponse::getId)
-                    .containsExactly(1L, 2L, 3L);
+                    .extracting(RecipeSummaryResponse::getNumberOfIngredients)
+                    .containsExactly(1, 1, 1);
+            assertThat(responses)
+                    .extracting(RecipeSummaryResponse::getNumberOfSteps)
+                    .containsExactly(1, 1, 1);
         }
 
         @Test
@@ -170,7 +177,7 @@ class RecipeMapperTest {
             List<Recipe> emptyList = new ArrayList<>();
 
             // Act
-            List<RecipeResponse> result = recipeMapper.toResponseList(emptyList);
+            List<RecipeSummaryResponse> result = recipeMapper.toResponseList(emptyList);
 
             // Assert
             assertThat(result).isEmpty();

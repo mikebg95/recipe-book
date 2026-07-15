@@ -2,6 +2,7 @@ package dev.michaelgoldman.recipebookbackend.controller;
 
 import dev.michaelgoldman.recipebookbackend.api.model.RecipeRequest;
 import dev.michaelgoldman.recipebookbackend.api.model.RecipeResponse;
+import dev.michaelgoldman.recipebookbackend.api.model.RecipeSummaryResponse;
 import dev.michaelgoldman.recipebookbackend.service.RecipeService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
@@ -42,8 +43,8 @@ public class RecipeController {
     }
 
     @GetMapping
-    public ResponseEntity<List<RecipeResponse>> getRecipes() {
-        List<RecipeResponse> responses = recipeService.getAll();
+    public ResponseEntity<List<RecipeSummaryResponse>> getRecipes() {
+        List<RecipeSummaryResponse> responses = recipeService.getAll();
         return ResponseEntity.ok(responses);
     }
 

@@ -2,6 +2,7 @@ package dev.michaelgoldman.recipebookbackend.mapper;
 
 import dev.michaelgoldman.recipebookbackend.api.model.RecipeRequest;
 import dev.michaelgoldman.recipebookbackend.api.model.RecipeResponse;
+import dev.michaelgoldman.recipebookbackend.api.model.RecipeSummaryResponse;
 import dev.michaelgoldman.recipebookbackend.api.model.StepRequest;
 import dev.michaelgoldman.recipebookbackend.api.model.StepResponse;
 import dev.michaelgoldman.recipebookbackend.entity.Ingredient;
@@ -14,10 +15,10 @@ import java.util.List;
 
 @Component
 public class RecipeMapper {
-    public List<RecipeResponse> toResponseList(List<Recipe> entities) {
-        List<RecipeResponse> responseList = new ArrayList<>();
+    public List<RecipeSummaryResponse> toResponseList(List<Recipe> entities) {
+        List<RecipeSummaryResponse> responseList = new ArrayList<>();
         for (Recipe entity : entities) {
-            responseList.add(toResponse(entity));
+            responseList.add(toSummaryResponse(entity));
         }
         return responseList;
     }
@@ -44,6 +45,15 @@ public class RecipeMapper {
                 .description(entity.getDescription())
                 .ingredients(entity.getIngredients().stream().map(this::toIngredientResponse).toList())
                 .steps(entity.getSteps().stream().map(this::toStepResponse).toList());
+    }
+
+    public RecipeSummaryResponse toSummaryResponse(Recipe entity) {
+        return new RecipeSummaryResponse()
+                .id(entity.getId())
+                .name(entity.getName())
+                .description(entity.getDescription())
+                .numberOfIngredients(entity.getIngredients().size())
+                .numberOfSteps(entity.getSteps().size());
     }
 
     private dev.michaelgoldman.recipebookbackend.api.model.Ingredient toIngredientResponse(Ingredient e) {
