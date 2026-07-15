@@ -7,3 +7,6 @@ springdoc:
     enabled: false
   swagger-ui:
     enabled: false
+
+cors:
+  allowed-origin-pattern: https://frontend.test
