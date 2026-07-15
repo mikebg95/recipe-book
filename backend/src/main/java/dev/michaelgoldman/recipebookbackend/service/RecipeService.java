@@ -3,6 +3,7 @@ package dev.michaelgoldman.recipebookbackend.service;
 import dev.michaelgoldman.recipebookbackend.api.model.RecipeRequest;
 import dev.michaelgoldman.recipebookbackend.api.model.RecipeResponse;
 import dev.michaelgoldman.recipebookbackend.entity.Recipe;
+import dev.michaelgoldman.recipebookbackend.exception.RecipeDoesNotExistException;
 import dev.michaelgoldman.recipebookbackend.exception.RecipeNameAlreadyExistsException;
 import dev.michaelgoldman.recipebookbackend.mapper.RecipeMapper;
 import dev.michaelgoldman.recipebookbackend.repository.RecipeRepository;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class RecipeService {
@@ -34,5 +36,13 @@ public class RecipeService {
 
     public List<RecipeResponse> getAll() {
         return recipeMapper.toResponseList(recipeRepository.findAll());
+    }
+
+    public RecipeResponse getById(Long id) {
+        Optional<Recipe> recipeOptional = recipeRepository.findById(id);
+        if (recipeOptional.isEmpty()) {
+            throw new RecipeDoesNotExistException(id);
+        }
+        return recipeMapper.toResponse(recipeOptional.get());
     }
 }

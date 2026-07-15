@@ -3,6 +3,7 @@ package dev.michaelgoldman.recipebookbackend.service;
 import dev.michaelgoldman.recipebookbackend.api.model.RecipeRequest;
 import dev.michaelgoldman.recipebookbackend.api.model.RecipeResponse;
 import dev.michaelgoldman.recipebookbackend.entity.Recipe;
+import dev.michaelgoldman.recipebookbackend.exception.RecipeDoesNotExistException;
 import dev.michaelgoldman.recipebookbackend.exception.RecipeNameAlreadyExistsException;
 import dev.michaelgoldman.recipebookbackend.mapper.RecipeMapper;
 import dev.michaelgoldman.recipebookbackend.repository.RecipeRepository;
@@ -16,6 +17,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static dev.michaelgoldman.recipebookbackend.api.model.RecipeRequestTestBuilder.aRecipeRequest;
 import static dev.michaelgoldman.recipebookbackend.api.model.RecipeResponseTestBuilder.aRecipeResponse;
@@ -106,6 +108,39 @@ class RecipeServiceTest {
 
             // Assert
             assertThat(fetched).isEqualTo(responses);
+        }
+    }
+
+    @Nested
+    @DisplayName("getRecipeById")
+    class GetRecipeById {
+        @Test
+        void whenRecipeExists_shouldReturnMappedRecipeResponse() {
+            // Arrange
+            Long recipeId = 5L;
+            Recipe entity = aRecipe().withId(recipeId).build();
+            RecipeResponse expected = aRecipeResponse().withId(recipeId).build();
+            when(recipeRepository.findById(recipeId)).thenReturn(Optional.of(entity));
+            when(recipeMapper.toResponse(entity)).thenReturn(expected);
+
+            // Act
+            RecipeResponse response = recipeService.getById(recipeId);
+
+            // Assert
+            assertThat(response).isSameAs(expected);
+        }
+
+        @Test
+        void whenRecipeDoesNotExist_shouldThrowRecipeDoesNotExistException() {
+            // Arrange
+            Long doesNotExistId = 99L;
+            Optional<Recipe> empty = Optional.empty();
+            when(recipeRepository.findById(doesNotExistId)).thenReturn(empty);
+
+            // Act & Assert
+            assertThatThrownBy(() -> recipeService.getById(doesNotExistId))
+                    .isInstanceOf(RecipeDoesNotExistException.class)
+                    .hasMessageContaining(String.valueOf(doesNotExistId));
         }
     }
 }
