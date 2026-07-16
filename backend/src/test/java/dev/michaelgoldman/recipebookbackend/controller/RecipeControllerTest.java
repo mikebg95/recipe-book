@@ -63,7 +63,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class RecipeControllerTest {
     private static final Long RECIPE_ID = 1L;
     private static final Long NON_EXISTING_ID = 999L;
-    private static final String NOT_FOUND_DETAIL = "No recipe found with id + " + NON_EXISTING_ID;
+    private static final String NOT_FOUND_DETAIL = "No recipe found with id " + NON_EXISTING_ID;
 
     @Autowired
     private ObjectMapper objectMapper;
