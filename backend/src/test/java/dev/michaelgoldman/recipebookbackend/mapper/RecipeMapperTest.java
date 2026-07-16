@@ -2,8 +2,10 @@ package dev.michaelgoldman.recipebookbackend.mapper;
 
 import dev.michaelgoldman.recipebookbackend.api.model.Ingredient;
 import dev.michaelgoldman.recipebookbackend.api.model.RecipeRequest;
+import dev.michaelgoldman.recipebookbackend.api.model.RecipeRequestTestBuilder;
 import dev.michaelgoldman.recipebookbackend.api.model.RecipeResponse;
 import dev.michaelgoldman.recipebookbackend.api.model.RecipeSummaryResponse;
+import dev.michaelgoldman.recipebookbackend.api.model.StepRequest;
 import dev.michaelgoldman.recipebookbackend.api.model.StepResponse;
 import dev.michaelgoldman.recipebookbackend.entity.Recipe;
 import dev.michaelgoldman.recipebookbackend.entity.Step;
@@ -26,7 +28,15 @@ class RecipeMapperTest {
             "Crisp the diced guanciale in a pan over medium heat; set the rendered fat and meat aside.",
             "Whisk egg yolks, Pecorino Romano, and plenty of cracked black pepper in a bowl to form a thick paste.",
             "Boil spaghetti in salted water until al dente, drain (reserve 1 cup of pasta water), and immediately toss the hot pasta into the guanciale pan.",
-            "Remove pan from heat, stir in the egg-cheese paste and a splash of pasta water, tossing vigorously until a smooth, creamy sauce forms."
+            "Remove pan from heat, stir in the egg-cheese paste and a splash of pasta water, tossing vigorously until a smooth, creamy sauce forms.",
+            "Enjoy the beautiful tasty dish!."
+    );
+
+    private static final List<String> CACIO_E_PEPE_STEPS_DESCRIPTIONS = List.of(
+            "Toast the freshly cracked black pepper in a dry pan over medium heat until fragrant.",
+            "Boil the tonnarelli or spaghetti in salted water until very al dente; transfer directly to the pan with the pepper, reserving the pasta water.",
+            "Add a ladle of hot pasta water to the pan and toss to create a starchy base, then remove the pan from the heat.",
+            "Sprinkle in the Pecorino Romano while stirring and tossing vigorously, adding a bit more pasta water as needed to create a creamy sauce."
     );
 
     private final RecipeMapper recipeMapper = new RecipeMapper();
@@ -37,7 +47,7 @@ class RecipeMapperTest {
         @Test
         void whenFullyPopulatedRequest_shouldMapNameDescriptionIngredientsAndSteps() {
             // Arrange
-            RecipeRequest request = fullyPopulatedRequest();
+            RecipeRequest request = carbonaraRequest().build();
 
             // Act
             Recipe entity = recipeMapper.toEntity(request);
@@ -62,13 +72,13 @@ class RecipeMapperTest {
 
             assertThat(entity.getSteps())
                     .extracting(Step::getStepNumber)
-                    .containsExactly(1, 2, 3, 4);
+                    .containsExactly(1, 2, 3, 4, 5);
         }
 
         @Test
         void whenFullyPopulatedRequest_shouldSetParentBackReferenceOnIngredientsAndSteps() {
             // Arrange
-            RecipeRequest request = fullyPopulatedRequest();
+            RecipeRequest request = carbonaraRequest().build();
 
             // Act
             Recipe entity = recipeMapper.toEntity(request);
@@ -84,7 +94,7 @@ class RecipeMapperTest {
         @Test
         void whenDescriptionNull_shouldMapDescriptionToNull() {
             // Arrange
-            RecipeRequest request = fullyPopulatedRequest();
+            RecipeRequest request = carbonaraRequest().build();
             request.setDescription(null);
 
             // Act
@@ -101,7 +111,7 @@ class RecipeMapperTest {
         @Test
         void whenFullyPopulatedEntity_shouldMapNameDescriptionIngredientsAndSteps() {
             // Arrange
-            Recipe entity = fullyPopulatedEntity();
+            Recipe entity = cacioEPepeEntity();
 
             // Act
             RecipeResponse response = recipeMapper.toResponse(entity);
@@ -130,7 +140,7 @@ class RecipeMapperTest {
         @Test
         void whenDescriptionNull_shouldMapDescriptionToNull() {
             // Arrange
-            Recipe entity = fullyPopulatedEntity();
+            Recipe entity = cacioEPepeEntity();
             entity.setDescription(null);
 
             // Act
@@ -184,7 +194,84 @@ class RecipeMapperTest {
         }
     }
 
-    private RecipeRequest fullyPopulatedRequest() {
+    @Nested
+    @DisplayName("UpdateEntity")
+    class UpdateEntity {
+        @Test
+        void updateEntity_whenPopulatedEntityAndRequestPassed_shouldUpdateEntityValues() {
+            // Arrange
+            Recipe entity = cacioEPepeEntity();
+            RecipeRequest request = carbonaraRequest().build();
+            Long entityId = entity.getId();
+
+            // Act
+            recipeMapper.updateEntity(entity, request);
+
+            // Assert
+            assertThat(entity.getId()).isEqualTo(entityId);
+            assertThat(entity.getName()).isEqualTo(request.getName());
+            assertThat(entity.getDescription()).isEqualTo(request.getDescription());
+
+            // ingredient names
+            List<String> expectedIngredientNames = request.getIngredients()
+                    .stream()
+                    .map(Ingredient::getName)
+                    .toList();
+            assertThat(entity.getIngredients())
+                    .extracting(dev.michaelgoldman.recipebookbackend.entity.Ingredient::getName)
+                    .containsExactlyInAnyOrderElementsOf(expectedIngredientNames);
+
+            // ingredient units
+            List<String> expectedIngredientUnits = request.getIngredients()
+                    .stream()
+                    .map(Ingredient::getUnit)
+                    .toList();
+            assertThat(entity.getIngredients())
+                    .extracting(dev.michaelgoldman.recipebookbackend.entity.Ingredient::getUnit)
+                    .containsExactlyInAnyOrderElementsOf(expectedIngredientUnits);
+
+            // ingredient quantities
+            List<BigDecimal> expectedIngredientQuantities = request.getIngredients()
+                    .stream()
+                    .map(Ingredient::getQuantity)
+                    .toList();
+            assertThat(entity.getIngredients())
+                    .extracting(dev.michaelgoldman.recipebookbackend.entity.Ingredient::getQuantity)
+                    .usingElementComparator(BigDecimal::compareTo)
+                    .containsExactlyInAnyOrderElementsOf(expectedIngredientQuantities);
+
+            // steps
+            List<String> expectedStepDescriptions = request.getSteps()
+                    .stream()
+                    .map(StepRequest::getDescription)
+                    .toList();
+            assertThat(entity.getSteps())
+                    .extracting(dev.michaelgoldman.recipebookbackend.entity.Step::getDescription)
+                    .containsExactlyElementsOf(expectedStepDescriptions);
+            assertThat(entity.getSteps())
+                    .extracting(dev.michaelgoldman.recipebookbackend.entity.Step::getStepNumber)
+                    .containsExactly(1, 2, 3, 4, 5);
+
+            // back references
+            assertThat(entity.getIngredients()).allMatch(i -> i.getRecipe() == entity);
+            assertThat(entity.getSteps()).allMatch(s -> s.getRecipe() == entity);
+        }
+
+        @Test
+        void updateEntity_whenDescriptionNullInRequest_shouldUpdateEntityCorrectly() {
+            // Arrange
+            Recipe entity = cacioEPepeEntity();
+            RecipeRequest request = carbonaraRequest().withDescription(null).build();
+
+            // Act
+            recipeMapper.updateEntity(entity, request);
+
+            // Assert
+            assertThat(entity.getDescription()).isNull();
+        }
+    }
+
+    private RecipeRequestTestBuilder carbonaraRequest() {
         return aRecipeRequest()
                 .withName("Spaghetti alla Carbonara")
                 .withDescription("An Italian classic.")
@@ -194,22 +281,20 @@ class RecipeMapperTest {
                         new Ingredient("Spaghetti", "grams", new BigDecimal("350")),
                         new Ingredient("Large egg", "yolk", new BigDecimal("6")),
                         new Ingredient("Black pepper", "to taste", new BigDecimal("1")))
-                .withStepDescriptions(CARBONARA_STEPS_DESCRIPTIONS)
-                .build();
+                .withStepDescriptions(CARBONARA_STEPS_DESCRIPTIONS);
     }
 
-    private Recipe fullyPopulatedEntity() {
+    private Recipe cacioEPepeEntity() {
         return aRecipe()
-                .withId(1L)
-                .withName("Spaghetti alla Carbonara")
-                .withDescription("An Italian classic.")
+                .withId(5L)
+                .withName("Cacio e Pepe")
+                .withDescription("A minimalist Roman masterpiece.")
                 .withIngredients(
-                        new dev.michaelgoldman.recipebookbackend.entity.Ingredient("Guanciale", "grams", new BigDecimal("150")),
-                        new dev.michaelgoldman.recipebookbackend.entity.Ingredient("Pecorino Romano", "grams", new BigDecimal("100")),
-                        new dev.michaelgoldman.recipebookbackend.entity.Ingredient("Spaghetti", "grams", new BigDecimal("350")),
-                        new dev.michaelgoldman.recipebookbackend.entity.Ingredient("Large egg", "yolk", new BigDecimal("6")),
-                        new dev.michaelgoldman.recipebookbackend.entity.Ingredient("Black pepper", "to taste", new BigDecimal("1")))
-                .withStepDescriptions(CARBONARA_STEPS_DESCRIPTIONS)
+                        new dev.michaelgoldman.recipebookbackend.entity.Ingredient("Tonnarelli or Spaghetti", "grams", new BigDecimal("350")),
+                        new dev.michaelgoldman.recipebookbackend.entity.Ingredient("Pecorino Romano", "grams", new BigDecimal("120")),
+                        new dev.michaelgoldman.recipebookbackend.entity.Ingredient("Black pepper", "tablespoons", new BigDecimal("1.5")),
+                        new dev.michaelgoldman.recipebookbackend.entity.Ingredient("Salt", "to taste", new BigDecimal("1")))
+                .withStepDescriptions(CACIO_E_PEPE_STEPS_DESCRIPTIONS)
                 .build();
     }
 }

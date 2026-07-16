@@ -38,6 +38,29 @@ public class RecipeMapper {
         return recipe;
     }
 
+    public void updateEntity(Recipe recipe, RecipeRequest request) {
+        recipe.setName(request.getName());
+        recipe.setDescription(request.getDescription());
+        recipe.replaceIngredients(toIngredientEntities(request.getIngredients()));
+        recipe.replaceSteps(toStepEntities(request.getSteps()));
+    }
+
+    private List<Ingredient> toIngredientEntities(List<dev.michaelgoldman.recipebookbackend.api.model.Ingredient> ingredients) {
+        List<Ingredient> result = new ArrayList<>();
+        for (dev.michaelgoldman.recipebookbackend.api.model.Ingredient ingredient : ingredients) {
+            result.add(new Ingredient(ingredient.getName(), ingredient.getUnit(), ingredient.getQuantity()));
+        }
+        return result;
+    }
+
+    private List<Step> toStepEntities(List<StepRequest> steps) {
+        List<Step> result = new ArrayList<>();
+        for (dev.michaelgoldman.recipebookbackend.api.model.StepRequest step : steps) {
+            result.add(new Step(step.getDescription()));
+        }
+        return result;
+    }
+
     public RecipeResponse toResponse(Recipe entity) {
        return new RecipeResponse()
                 .id(entity.getId())

@@ -83,6 +83,20 @@ public class Recipe implements Serializable {
         }
     }
 
+    public void replaceIngredients(List<Ingredient> ingredients) {
+        this.ingredients.clear();
+        for (Ingredient ingredient : ingredients) {
+            this.addIngredient(ingredient);
+        }
+    }
+
+    public void replaceSteps(List<Step> steps) {
+        this.steps.clear();
+        for (Step step : steps) {
+            this.addStep(step);
+        }
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
