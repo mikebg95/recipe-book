@@ -38,7 +38,9 @@ import static dev.michaelgoldman.recipebookbackend.api.model.RecipeRequestTestBu
 import static dev.michaelgoldman.recipebookbackend.api.model.RecipeResponseTestBuilder.aRecipeResponse;
 import static dev.michaelgoldman.recipebookbackend.api.model.RecipeSummaryResponseTestBuilder.aRecipeSummaryResponse;
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.endsWith;
+import static org.hamcrest.Matchers.not;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -387,6 +389,24 @@ public class RecipeControllerTest {
                     .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON));
 
             verify(recipeService, never()).deleteById(anyLong());
+        }
+    }
+
+    @Nested
+    @DisplayName("Unexpected errors")
+    class UnexpectedErrors {
+        @Test
+        void whenServiceThrowsUnexpectedException_shouldReturn500AndNotLeakDetails() throws Exception {
+            // Arrange
+            when(recipeService.getById(RECIPE_ID)).thenThrow(new RuntimeException("Internal db password leak"));
+
+            // Act & Assert
+            mockMvc.perform(getRecipe(RECIPE_ID))
+                    .andExpect(status().isInternalServerError())
+                    .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
+                    .andExpect(jsonPath("$.title").value("Unexpected error"))
+                    .andExpect(jsonPath("$.detail").value("An unexpected error occurred."))
+                    .andExpect(content().string(not(containsString("Internal db password leak"))));
         }
     }
 
