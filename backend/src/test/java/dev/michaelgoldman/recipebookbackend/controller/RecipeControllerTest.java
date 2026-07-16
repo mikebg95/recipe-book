@@ -7,6 +7,7 @@ import dev.michaelgoldman.recipebookbackend.api.model.RecipeSummaryResponse;
 import dev.michaelgoldman.recipebookbackend.config.WebConfig;
 import dev.michaelgoldman.recipebookbackend.exception.GlobalExceptionHandler;
 import dev.michaelgoldman.recipebookbackend.exception.RecipeDoesNotExistException;
+import dev.michaelgoldman.recipebookbackend.exception.RecipeNameAlreadyExistsException;
 import dev.michaelgoldman.recipebookbackend.service.RecipeService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -51,6 +52,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -78,14 +80,15 @@ public class RecipeControllerTest {
         @ParameterizedTest
         @NullSource
         @ValueSource(strings = { "A valid recipe description." })
+        @DisplayName("valid request provided should update recipe successfully")
         void whenValidRequest_shouldReturn201(String description) throws Exception {
             RecipeRequest request = aRecipeRequest().withDescription(description).build();
             assertCreatedAndDelegates(request);
         }
 
         @ParameterizedTest(name = "{0}")
-        @MethodSource("limitValues")
-        @DisplayName("value at limit should create successfully")
+        @MethodSource("dev.michaelgoldman.recipebookbackend.controller.RecipeControllerTest#limitValues")
+        @DisplayName("value at limit should update successfully")
         void whenValuesAtLimit_shouldReturn201(String scenario, RecipeRequest request) throws Exception {
             assertCreatedAndDelegates(request);
         }
@@ -100,42 +103,42 @@ public class RecipeControllerTest {
         }
 
         @ParameterizedTest(name = "{0}")
-        @MethodSource("emptyLists")
+        @MethodSource("dev.michaelgoldman.recipebookbackend.controller.RecipeControllerTest#emptyLists")
         @DisplayName("list with length zero should return 400")
         void whenRequiredListIsEmpty_shouldReturn400(String scenario, RecipeRequest request) throws Exception {
             assertCreateReturns400(toJson(request));
         }
 
         @ParameterizedTest(name = "{0}")
-        @MethodSource("nullValues")
+        @MethodSource("dev.michaelgoldman.recipebookbackend.controller.RecipeControllerTest#nullValues")
         @DisplayName("null values for non-nullable fields should return 400")
         void whenRequiredFieldIsNull_shouldReturn400(String scenario, RecipeRequest request) throws Exception {
             assertCreateReturns400(toJson(request));
         }
 
         @ParameterizedTest(name = "{0}")
-        @MethodSource("emptyStrings")
+        @MethodSource("dev.michaelgoldman.recipebookbackend.controller.RecipeControllerTest#emptyStrings")
         @DisplayName("empty strings should return 400")
         void whenRequiredStringIsBlank_shouldReturn400(String scenario, RecipeRequest request) throws Exception {
             assertCreateReturns400(toJson(request));
         }
 
         @ParameterizedTest(name = "{0}")
-        @MethodSource("tooLongValues")
+        @MethodSource("dev.michaelgoldman.recipebookbackend.controller.RecipeControllerTest#tooLongValues")
         @DisplayName("values exceeding limit should return 400")
         void whenValueExceedsLimit_shouldReturn400(String scenario, RecipeRequest request) throws Exception {
             assertCreateReturns400(toJson(request));
         }
 
         @ParameterizedTest(name = "{0}")
-        @MethodSource("nonPositiveQuantities")
+        @MethodSource("dev.michaelgoldman.recipebookbackend.controller.RecipeControllerTest#nonPositiveQuantities")
         @DisplayName("invalid values should return 400")
         void whenQuantityIsZeroOrNegative_shouldReturn400(String scenario, RecipeRequest request) throws Exception {
             assertCreateReturns400(toJson(request));
         }
 
         @ParameterizedTest(name = "{0}")
-        @MethodSource("malformedJsonBodies")
+        @MethodSource("dev.michaelgoldman.recipebookbackend.controller.RecipeControllerTest#malformedJsonBodies")
         @DisplayName("invalid json should return 400")
         void whenInvalidJson_shouldReturn400(String scenario, String requestJson) throws Exception {
             assertCreateReturns400(requestJson);
@@ -154,125 +157,22 @@ public class RecipeControllerTest {
                     .andExpect(jsonPath("$.errors.name").exists());
         }
 
-        static Stream<Arguments> malformedJsonBodies() {
-            return Stream.of(
-                    arguments("missing recipe name", """
-                                    {
-                                        "name": ,
-                                        "description": "A velvety Roman classic of eggs, guanciale, and Pecorino Romano.",
-                                        "ingredients": [
-                                            { "name": "Guanciale", "unit": "grams", "quantity": 150 },
-                                        ],
-                                        "steps": [
-                                            { "description": "Crisp the diced guanciale in a pan over medium heat; set aside." },
-                                        ]
-                                    }
-                            """),
-                    arguments("ingredient quantity not a number", """
-                                    {
-                                        "name": "Spaghetti alla Carbonara",
-                                        "description": "A velvety Roman classic of eggs, guanciale, and Pecorino Romano.",
-                                        "ingredients": [
-                                            { "name": "Guanciale", "unit": "grams", "quantity": "abc" }
-                                        ],
-                                        "steps": [
-                                            { "description": "Crisp the diced guanciale in a pan over medium heat; set aside." }
-                                        ]
-                                    }
-                            """)
-            );
-        }
+        @Test
+        void whenRecipeNameAlreadyExists_shouldReturn409() throws Exception {
+            // Arrange
+            RecipeRequest request = aRecipeRequest().build();
+            when(recipeService.createRecipe(request)).thenThrow(new RecipeNameAlreadyExistsException(request.getName()));
 
-        static Stream<Arguments> nonPositiveQuantities() {
-            return Stream.of(
-                    arguments("ingredient quantity zero", aRecipeRequest().withIngredients(anIngredient().withQuantity(new BigDecimal("0")).build()).build()),
-                    arguments("ingredient quantity negative", aRecipeRequest().withIngredients(anIngredient().withQuantity(new BigDecimal("-1")).build()).build())
-            );
-        }
-
-        static Stream<Arguments> tooLongValues() {
-            return Stream.of(
-                    arguments(
-                            "recipe name", aRecipeRequest().withName("a".repeat(101)).build()
-                    ),
-                    arguments(
-                            "recipe description", aRecipeRequest().withDescription("a".repeat(501)).build()
-                    ),
-                    arguments(
-                            "ingredient name", aRecipeRequest().withIngredients(anIngredient().withName("a".repeat(101)).build()).build()
-                    ),
-                    arguments(
-                            "ingredient unit", aRecipeRequest().withIngredients(anIngredient().withUnit("a".repeat(51)).build()).build()
-                    ),
-                    arguments(
-                            "ingredient quantity too many integer digits", aRecipeRequest().withIngredients(anIngredient().withQuantity(new BigDecimal("10000000")).build()).build()
-                    ),
-                    arguments(
-                            "ingredient quantity too many decimals", aRecipeRequest().withIngredients(anIngredient().withQuantity(new BigDecimal("1.0001")).build()).build()
-                    ),
-                    arguments(
-                            "step description", aRecipeRequest().withStepDescriptions(List.of("a".repeat(501))).build()
-                    )
-            );
-        }
-
-        static Stream<Arguments> emptyStrings() {
-            return Stream.of(
-                    arguments("recipe name empty", aRecipeRequest().withName("").build()),
-                    arguments("ingredient name empty", aRecipeRequest().withIngredients(anIngredient().withName("").build()).build()),
-                    arguments("ingredient unit empty", aRecipeRequest().withIngredients(anIngredient().withUnit("").build()).build()),
-                    arguments("step description empty", aRecipeRequest().withStepDescriptions(Collections.singletonList("")).build()),
-                    arguments("recipe name whitespace", aRecipeRequest().withName("   ").build()),
-                    arguments("ingredient name whitespace", aRecipeRequest().withIngredients(anIngredient().withName("   ").build()).build()),
-                    arguments("ingredient unit whitespace", aRecipeRequest().withIngredients(anIngredient().withUnit("   ").build()).build()),
-                    arguments("step description whitespace", aRecipeRequest().withStepDescriptions(Collections.singletonList("   ")).build())
-            );
-        }
-
-        static Stream<Arguments> nullValues() {
-            return Stream.of(
-                        arguments("recipe name", aRecipeRequest().withName(null).build()),
-                        arguments("ingredient name", aRecipeRequest().withIngredients(anIngredient().withName(null).build()).build()),
-                        arguments("ingredient unit", aRecipeRequest().withIngredients(anIngredient().withUnit(null).build()).build()),
-                        arguments("ingredient quantity", aRecipeRequest().withIngredients(anIngredient().withQuantity(null).build()).build()),
-                        arguments("step description", aRecipeRequest().withStepDescriptions(Collections.singletonList(null)).build())
-            );
-        }
-
-        static Stream<Arguments> emptyLists() {
-            return Stream.of(
-                    arguments(
-                            "ingredients", aRecipeRequest().withIngredients().build()
-                    ),
-                    arguments(
-                            "steps", aRecipeRequest().withStepDescriptions(new ArrayList<>()).build()
-                    )
-            );
-        }
-
-        static Stream<Arguments> limitValues() {
-            return Stream.of(
-                    arguments(
-                            "recipe name", aRecipeRequest().withName("a".repeat(100)).build()
-                    ),
-                    arguments(
-                            "recipe description", aRecipeRequest().withDescription("a".repeat(500)).build()
-                    ),
-                    arguments(
-                            "ingredient name", aRecipeRequest().withIngredients(anIngredient().withName("a".repeat(100)).build()).build()
-                    ),
-                    arguments(
-                            "ingredient unit", aRecipeRequest().withIngredients(anIngredient().withUnit("a".repeat(50)).build()).build()
-                    ),
-                    arguments(
-                            "ingredient quantity", aRecipeRequest().withIngredients(anIngredient().withQuantity(new BigDecimal("9999999.999")).build()).build()
-                    ),
-                    arguments(
-                            "step description", aRecipeRequest().withStepDescriptions(List.of("a".repeat(500))).build()
-                    )
-            );
+            // Act & Assert
+            mockMvc.perform(postRecipe().content(toJson(request)))
+                    .andExpect(status().isConflict())
+                    .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
+                    .andExpect(jsonPath("$.status").value(HttpStatus.CONFLICT.value()))
+                    .andExpect(jsonPath("$.title").value("Recipe name already exists."))
+                    .andExpect(jsonPath("$.detail").value("Recipe with name " + request.getName() + " already exists."));
         }
     }
+
 
     @Nested
     @DisplayName("GET /recipes")
@@ -393,6 +293,113 @@ public class RecipeControllerTest {
     }
 
     @Nested
+    @DisplayName("PUT /recipes/{id}")
+    class UpdateRecipeById {
+        @ParameterizedTest
+        @NullSource
+        @ValueSource(strings = { "A valid recipe description." })
+        void whenValidRequest_shouldReturn200(String description) throws Exception {
+            RecipeRequest request = aRecipeRequest().withDescription(description).build();
+            assertUpdatedAndDelegates(request);
+        }
+
+        @ParameterizedTest(name = "{0}")
+        @MethodSource("dev.michaelgoldman.recipebookbackend.controller.RecipeControllerTest#limitValues")
+        @DisplayName("value at limit should create successfully")
+        void whenValuesAtLimit_shouldReturn201(String scenario, RecipeRequest request) throws Exception {
+            assertUpdatedAndDelegates(request);
+        }
+
+        @Test
+        void whenDuplicateIngredientNameInsideRecipe_shouldReturn400() throws Exception {
+            Ingredient ingredient = new Ingredient("Bacon", "grams", new BigDecimal("150"));
+            Ingredient duplicate = new Ingredient("Bacon", "kg", new BigDecimal("2"));
+            RecipeRequest request = aRecipeRequest().withIngredients(ingredient, duplicate).build();
+
+            assertUpdateReturns400(RECIPE_ID, toJson(request));
+        }
+
+        @ParameterizedTest(name = "{0}")
+        @MethodSource("dev.michaelgoldman.recipebookbackend.controller.RecipeControllerTest#emptyLists")
+        @DisplayName("list with length zero should return 400")
+        void whenRequiredListIsEmpty_shouldReturn400(String scenario, RecipeRequest request) throws Exception {
+            assertUpdateReturns400(RECIPE_ID, toJson(request));
+        }
+
+        @ParameterizedTest(name = "{0}")
+        @MethodSource("dev.michaelgoldman.recipebookbackend.controller.RecipeControllerTest#nullValues")
+        @DisplayName("null values for non-nullable fields should return 400")
+        void whenRequiredFieldIsNull_shouldReturn400(String scenario, RecipeRequest request) throws Exception {
+            assertUpdateReturns400(RECIPE_ID, toJson(request));
+        }
+
+        @ParameterizedTest(name = "{0}")
+        @MethodSource("dev.michaelgoldman.recipebookbackend.controller.RecipeControllerTest#emptyStrings")
+        @DisplayName("empty strings should return 400")
+        void whenRequiredStringIsBlank_shouldReturn400(String scenario, RecipeRequest request) throws Exception {
+            assertUpdateReturns400(RECIPE_ID, toJson(request));
+        }
+
+        @ParameterizedTest(name = "{0}")
+        @MethodSource("dev.michaelgoldman.recipebookbackend.controller.RecipeControllerTest#tooLongValues")
+        @DisplayName("values exceeding limit should return 400")
+        void whenValueExceedsLimit_shouldReturn400(String scenario, RecipeRequest request) throws Exception {
+            assertUpdateReturns400(RECIPE_ID, toJson(request));
+        }
+
+        @ParameterizedTest(name = "{0}")
+        @MethodSource("dev.michaelgoldman.recipebookbackend.controller.RecipeControllerTest#nonPositiveQuantities")
+        @DisplayName("invalid values should return 400")
+        void whenQuantityIsZeroOrNegative_shouldReturn400(String scenario, RecipeRequest request) throws Exception {
+            assertUpdateReturns400(RECIPE_ID, toJson(request));
+        }
+
+        @ParameterizedTest(name = "{0}")
+        @MethodSource("dev.michaelgoldman.recipebookbackend.controller.RecipeControllerTest#malformedJsonBodies")
+        @DisplayName("invalid json should return 400")
+        void whenInvalidJson_shouldReturn400(String scenario, String requestJson) throws Exception {
+            assertUpdateReturns400(RECIPE_ID, requestJson);
+        }
+
+        @ParameterizedTest
+        @ValueSource(strings = { "-1", "0", "1.5", "abc" })
+        void whenInvalidIdProvided_shouldReturn400(String invalidId) throws Exception {
+            RecipeRequest request = aRecipeRequest().build();
+            assertUpdateReturns400(invalidId, toJson(request));
+        }
+
+        @Test
+        void whenNoneExistingIdProvided_shouldReturn404() throws Exception {
+            // Arrange
+            RecipeRequest request = aRecipeRequest().build();
+            when(recipeService.updateById(NON_EXISTING_ID, request)).thenThrow(new RecipeDoesNotExistException(NON_EXISTING_ID));
+
+            // Act & Assert
+            mockMvc.perform(putRecipe(NON_EXISTING_ID).content(toJson(request)))
+                    .andExpect(status().isNotFound())
+                    .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
+                    .andExpect(jsonPath("$.status").value(HttpStatus.NOT_FOUND.value()))
+                    .andExpect(jsonPath("$.title").value("Recipe not found."))
+                    .andExpect(jsonPath("$.detail").value(NOT_FOUND_DETAIL));
+        }
+
+        @Test
+        void whenRecipeNameAlreadyExists_shouldReturn409() throws Exception {
+            // Arrange
+            RecipeRequest request = aRecipeRequest().build();
+            when(recipeService.updateById(RECIPE_ID, request)).thenThrow(new RecipeNameAlreadyExistsException(request.getName()));
+
+            // Act & Assert
+            mockMvc.perform(putRecipe(RECIPE_ID).content(toJson(request)))
+                    .andExpect(status().isConflict())
+                    .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
+                    .andExpect(jsonPath("$.status").value(HttpStatus.CONFLICT.value()))
+                    .andExpect(jsonPath("$.title").value("Recipe name already exists."))
+                    .andExpect(jsonPath("$.detail").value("Recipe with name " + request.getName() + " already exists."));
+        }
+    }
+
+    @Nested
     @DisplayName("Unexpected errors")
     class UnexpectedErrors {
         @Test
@@ -430,6 +437,12 @@ public class RecipeControllerTest {
         return delete("/api/v1/recipes/{id}", id);
     }
 
+    private MockHttpServletRequestBuilder putRecipe(Object id) {
+        return put("/api/v1/recipes/{id}", id)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON);
+    }
+
     private String toJson(Object obj) {
         return objectMapper.writeValueAsString(obj);
     }
@@ -450,11 +463,151 @@ public class RecipeControllerTest {
         verify(recipeService).createRecipe(request);
     }
 
+    private void assertUpdatedAndDelegates(RecipeRequest request) throws Exception {
+        // Arrange
+        RecipeResponse response = aRecipeResponse().withId(RECIPE_ID).build();
+        when(recipeService.updateById(RECIPE_ID, request)).thenReturn(response);
+
+        // Act & Assert
+        mockMvc.perform(putRecipe(RECIPE_ID).content(toJson(request)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(RECIPE_ID));
+
+        verify(recipeService).updateById(RECIPE_ID, request);
+    }
+
     private void assertCreateReturns400(String jsonRequest) throws Exception {
         mockMvc.perform(postRecipe().content(jsonRequest))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON));
 
         verify(recipeService, never()).createRecipe(any(RecipeRequest.class));
+    }
+
+    private void assertUpdateReturns400(Object recipeId, String jsonRequest) throws Exception {
+        mockMvc.perform(putRecipe(recipeId).content(jsonRequest))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON));
+
+        verify(recipeService, never()).updateById(anyLong(), any(RecipeRequest.class));
+    }
+
+    static Stream<Arguments> malformedJsonBodies() {
+        return Stream.of(
+                arguments("missing recipe name", """
+                                    {
+                                        "name": ,
+                                        "description": "A velvety Roman classic of eggs, guanciale, and Pecorino Romano.",
+                                        "ingredients": [
+                                            { "name": "Guanciale", "unit": "grams", "quantity": 150 },
+                                        ],
+                                        "steps": [
+                                            { "description": "Crisp the diced guanciale in a pan over medium heat; set aside." },
+                                        ]
+                                    }
+                            """),
+                arguments("ingredient quantity not a number", """
+                                    {
+                                        "name": "Spaghetti alla Carbonara",
+                                        "description": "A velvety Roman classic of eggs, guanciale, and Pecorino Romano.",
+                                        "ingredients": [
+                                            { "name": "Guanciale", "unit": "grams", "quantity": "abc" }
+                                        ],
+                                        "steps": [
+                                            { "description": "Crisp the diced guanciale in a pan over medium heat; set aside." }
+                                        ]
+                                    }
+                            """)
+        );
+    }
+
+    static Stream<Arguments> nonPositiveQuantities() {
+        return Stream.of(
+                arguments("ingredient quantity zero", aRecipeRequest().withIngredients(anIngredient().withQuantity(new BigDecimal("0")).build()).build()),
+                arguments("ingredient quantity negative", aRecipeRequest().withIngredients(anIngredient().withQuantity(new BigDecimal("-1")).build()).build())
+        );
+    }
+
+    static Stream<Arguments> tooLongValues() {
+        return Stream.of(
+                arguments(
+                        "recipe name", aRecipeRequest().withName("a".repeat(101)).build()
+                ),
+                arguments(
+                        "recipe description", aRecipeRequest().withDescription("a".repeat(501)).build()
+                ),
+                arguments(
+                        "ingredient name", aRecipeRequest().withIngredients(anIngredient().withName("a".repeat(101)).build()).build()
+                ),
+                arguments(
+                        "ingredient unit", aRecipeRequest().withIngredients(anIngredient().withUnit("a".repeat(51)).build()).build()
+                ),
+                arguments(
+                        "ingredient quantity too many integer digits", aRecipeRequest().withIngredients(anIngredient().withQuantity(new BigDecimal("10000000")).build()).build()
+                ),
+                arguments(
+                        "ingredient quantity too many decimals", aRecipeRequest().withIngredients(anIngredient().withQuantity(new BigDecimal("1.0001")).build()).build()
+                ),
+                arguments(
+                        "step description", aRecipeRequest().withStepDescriptions(List.of("a".repeat(501))).build()
+                )
+        );
+    }
+
+    static Stream<Arguments> emptyStrings() {
+        return Stream.of(
+                arguments("recipe name empty", aRecipeRequest().withName("").build()),
+                arguments("ingredient name empty", aRecipeRequest().withIngredients(anIngredient().withName("").build()).build()),
+                arguments("ingredient unit empty", aRecipeRequest().withIngredients(anIngredient().withUnit("").build()).build()),
+                arguments("step description empty", aRecipeRequest().withStepDescriptions(Collections.singletonList("")).build()),
+                arguments("recipe name whitespace", aRecipeRequest().withName("   ").build()),
+                arguments("ingredient name whitespace", aRecipeRequest().withIngredients(anIngredient().withName("   ").build()).build()),
+                arguments("ingredient unit whitespace", aRecipeRequest().withIngredients(anIngredient().withUnit("   ").build()).build()),
+                arguments("step description whitespace", aRecipeRequest().withStepDescriptions(Collections.singletonList("   ")).build())
+        );
+    }
+
+    static Stream<Arguments> nullValues() {
+        return Stream.of(
+                arguments("recipe name", aRecipeRequest().withName(null).build()),
+                arguments("ingredient name", aRecipeRequest().withIngredients(anIngredient().withName(null).build()).build()),
+                arguments("ingredient unit", aRecipeRequest().withIngredients(anIngredient().withUnit(null).build()).build()),
+                arguments("ingredient quantity", aRecipeRequest().withIngredients(anIngredient().withQuantity(null).build()).build()),
+                arguments("step description", aRecipeRequest().withStepDescriptions(Collections.singletonList(null)).build())
+        );
+    }
+
+    static Stream<Arguments> emptyLists() {
+        return Stream.of(
+                arguments(
+                        "ingredients", aRecipeRequest().withIngredients().build()
+                ),
+                arguments(
+                        "steps", aRecipeRequest().withStepDescriptions(new ArrayList<>()).build()
+                )
+        );
+    }
+
+    static Stream<Arguments> limitValues() {
+        return Stream.of(
+                arguments(
+                        "recipe name", aRecipeRequest().withName("a".repeat(100)).build()
+                ),
+                arguments(
+                        "recipe description", aRecipeRequest().withDescription("a".repeat(500)).build()
+                ),
+                arguments(
+                        "ingredient name", aRecipeRequest().withIngredients(anIngredient().withName("a".repeat(100)).build()).build()
+                ),
+                arguments(
+                        "ingredient unit", aRecipeRequest().withIngredients(anIngredient().withUnit("a".repeat(50)).build()).build()
+                ),
+                arguments(
+                        "ingredient quantity", aRecipeRequest().withIngredients(anIngredient().withQuantity(new BigDecimal("9999999.999")).build()).build()
+                ),
+                arguments(
+                        "step description", aRecipeRequest().withStepDescriptions(List.of("a".repeat(500))).build()
+                )
+        );
     }
 }
