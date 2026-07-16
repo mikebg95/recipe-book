@@ -24,10 +24,7 @@ public class RecipeMapper {
     }
 
     public Recipe toEntity(RecipeRequest request) {
-        String description = (request.getDescription() == null || request.getDescription().isBlank())
-                ? null
-                : request.getDescription().strip();
-        Recipe recipe = new Recipe(request.getName(), description);
+        Recipe recipe = new Recipe(request.getName(), request.getDescription());
 
         for (dev.michaelgoldman.recipebookbackend.api.model.Ingredient ingredient : request.getIngredients()) {
             recipe.addIngredient(new Ingredient(ingredient.getName(), ingredient.getUnit(), ingredient.getQuantity()));
