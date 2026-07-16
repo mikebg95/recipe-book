@@ -39,7 +39,7 @@ public class RecipeService {
         return recipeMapper.toResponseList(recipeRepository.findAll());
     }
 
-    // TODO: @Transactional
+    // TODO: @Transactional(readOnly = true)
     public RecipeResponse getById(Long id) {
         Optional<Recipe> recipeOptional = recipeRepository.findById(id);
         if (recipeOptional.isEmpty()) {
