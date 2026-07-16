@@ -22,7 +22,7 @@ public class RecipeRepositoryImpl implements RecipeRepository {
 
     @Override
     public boolean existsByName(String recipeName) {
-        String jpql = "SELECT COUNT(r) FROM Recipe r WHERE r.name = :recipeName";
+        String jpql = "SELECT COUNT(r) FROM Recipe r WHERE LOWER(r.name) = LOWER(:recipeName)";
         Long count = entityManager.createQuery(jpql, Long.class)
                 .setParameter("recipeName", recipeName)
                 .getSingleResult();

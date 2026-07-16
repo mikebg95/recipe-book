@@ -412,6 +412,19 @@ class RecipeRepositoryIT {
             // Assert
             assertThat(exists).isFalse();
         }
+
+        @Test
+        void whenNameExistsWithDifferentCasing_shouldReturnTrue() {
+            // Arrange
+            Recipe recipe = aRecipe().withName("Feijoada").build();
+            testEntityManager.persistAndFlush(recipe);
+            testEntityManager.clear();
+
+            // Act & Assert
+            assertThat(recipeRepository.existsByName("FEIJOADA")).isTrue();
+        }
+
+
     }
 
     @Nested
