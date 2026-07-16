@@ -256,7 +256,13 @@ class RecipeRepositoryIT {
                     ).build();
 
             // Act & Assert
-            assertSaveFailsWith(recipe, ConstraintViolationException.class);
+            assertThatThrownBy(() -> {
+                recipeRepository.save(recipe);
+                testEntityManager.flush();
+                testEntityManager.getEntityManager()
+                        .createNativeQuery("SET CONSTRAINTS ALL IMMEDIATE")
+                        .executeUpdate();
+            }).isInstanceOf(ConstraintViolationException.class);
         }
 
         @Test
@@ -276,7 +282,13 @@ class RecipeRepositoryIT {
             recipe.getSteps().getFirst().setStepNumber(2);
 
             // Act & Assert
-            assertSaveFailsWith(recipe, ConstraintViolationException.class);
+            assertThatThrownBy(() -> {
+                recipeRepository.save(recipe);
+                testEntityManager.flush();
+                testEntityManager.getEntityManager()
+                        .createNativeQuery("SET CONSTRAINTS ALL IMMEDIATE")
+                        .executeUpdate();
+            }).isInstanceOf(ConstraintViolationException.class);
         }
 
         static Stream<Arguments> limitValues() {
@@ -561,6 +573,85 @@ class RecipeRepositoryIT {
         testEntityManager.flush();
         testEntityManager.clear();
         return testEntityManager.find(Recipe.class, recipe.getId());
+    }
+
+    @Nested
+    @DisplayName("Orphan removal on update")
+    class OrphanRemovalOnUpdate {
+        @Test
+        void whenIngredientsAndStepsReplaced_shouldDeleteOrphanedIngredientAndStepsRows() {
+            // Arrange
+            Long savedId = testEntityManager.persistAndFlush(aCarbonara().build()).getId();
+            testEntityManager.clear();
+            String psqlIngredients = "SELECT i FROM Ingredient i WHERE i.recipe.id = :savedId";
+            String psqlSteps = "SELECT s FROM Step s WHERE s.recipe.id = :savedId";
+
+            List<Ingredient> oldIngredients = testEntityManager.getEntityManager()
+                    .createQuery(psqlIngredients, Ingredient.class)
+                    .setParameter("savedId", savedId)
+                    .getResultList();
+
+            List<Step> oldSteps = testEntityManager.getEntityManager()
+                    .createQuery(psqlSteps, Step.class)
+                    .setParameter("savedId", savedId)
+                    .getResultList();
+
+            // Act
+            Recipe managed = testEntityManager.find(Recipe.class, savedId);
+            assertThat(managed).isNotNull();
+            managed.replaceIngredients(List.of(
+                    new Ingredient("Salt", "grams", new BigDecimal("150")),
+                    new Ingredient("Water", "ml", new BigDecimal("500")),
+                    new Ingredient("Bread", "kg", new BigDecimal("1.5"))));
+            managed.replaceSteps(List.of(
+                    new Step("Mix the salt and water for 5 minutes."),
+                    new Step("Soak the bread in the saltwater mix until it dissolves.")
+            ));
+            testEntityManager.flush();
+            testEntityManager.clear();
+
+            List<Ingredient> newIngredients = testEntityManager.getEntityManager()
+                    .createQuery(psqlIngredients, Ingredient.class)
+                    .setParameter("savedId", savedId)
+                    .getResultList();
+
+            List<Step> newSteps = testEntityManager.getEntityManager()
+                    .createQuery(psqlSteps, Step.class)
+                    .setParameter("savedId", savedId)
+                    .getResultList();
+
+            Long totalIngredientCount = testEntityManager.getEntityManager()
+                    .createQuery("SELECT COUNT(i) FROM Ingredient i", Long.class)
+                    .getSingleResult();
+
+            Long totalStepCount = testEntityManager.getEntityManager()
+                    .createQuery("SELECT COUNT(s) FROM Step s", Long.class)
+                    .getSingleResult();
+
+            // Assert
+            assertThat(oldIngredients).hasSize(5);
+            assertThat(oldSteps).hasSize(4);
+            assertThat(newIngredients).hasSize(3);
+            assertThat(newSteps).hasSize(2);
+            assertThat(totalIngredientCount).isEqualTo(3);
+            assertThat(totalStepCount).isEqualTo(2);
+            assertThat(newIngredients)
+                    .extracting(Ingredient::getName)
+                    .containsExactlyInAnyOrder("Salt", "Water", "Bread");
+            assertThat(newIngredients)
+                    .extracting(Ingredient::getUnit)
+                    .containsExactlyInAnyOrder("grams", "ml", "kg");
+            assertThat(newIngredients)
+                    .extracting(Ingredient::getQuantity)
+                    .usingElementComparator(BigDecimal::compareTo)
+                    .containsExactlyInAnyOrder(new BigDecimal("150"), new BigDecimal("500"), new BigDecimal("1.5"));
+            assertThat(newSteps)
+                    .extracting(Step::getDescription)
+                    .containsExactly("Mix the salt and water for 5 minutes.", "Soak the bread in the saltwater mix until it dissolves.");
+            assertThat(newSteps)
+                    .extracting(Step::getStepNumber)
+                    .containsExactly(1, 2);
+        }
     }
 
     private void assertSaveFailsWith(Recipe recipe, Class<? extends Throwable> exception) {
