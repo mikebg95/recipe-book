@@ -63,7 +63,7 @@ public class RecipeService {
             throw new RecipeDoesNotExistException(id);
         }
         Recipe recipe = entity.get();
-        if (!request.getName().equals(recipe.getName())) {
+        if (!request.getName().equalsIgnoreCase(recipe.getName())) {
             if (recipeRepository.existsByName(request.getName())) {
                 throw new RecipeNameAlreadyExistsException(request.getName());
             }
