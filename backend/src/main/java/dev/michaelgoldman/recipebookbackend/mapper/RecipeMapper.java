@@ -8,6 +8,7 @@ import dev.michaelgoldman.recipebookbackend.api.model.StepResponse;
 import dev.michaelgoldman.recipebookbackend.entity.Ingredient;
 import dev.michaelgoldman.recipebookbackend.entity.Recipe;
 import dev.michaelgoldman.recipebookbackend.entity.Step;
+import dev.michaelgoldman.recipebookbackend.repository.projection.RecipeSummary;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -15,9 +16,9 @@ import java.util.List;
 
 @Component
 public class RecipeMapper {
-    public List<RecipeSummaryResponse> toResponseList(List<Recipe> entities) {
+    public List<RecipeSummaryResponse> toResponseSummaryList(List<RecipeSummary> entities) {
         List<RecipeSummaryResponse> responseList = new ArrayList<>();
-        for (Recipe entity : entities) {
+        for (RecipeSummary entity : entities) {
             responseList.add(toSummaryResponse(entity));
         }
         return responseList;
@@ -67,13 +68,13 @@ public class RecipeMapper {
                 .steps(entity.getSteps().stream().map(this::toStepResponse).toList());
     }
 
-    public RecipeSummaryResponse toSummaryResponse(Recipe entity) {
+    public RecipeSummaryResponse toSummaryResponse(RecipeSummary entity) {
         return new RecipeSummaryResponse()
-                .id(entity.getId())
-                .name(entity.getName())
-                .description(entity.getDescription())
-                .numberOfIngredients(entity.getIngredients().size())
-                .numberOfSteps(entity.getSteps().size());
+                .id(entity.id())
+                .name(entity.name())
+                .description(entity.description())
+                .numberOfIngredients(entity.ingredientCount())
+                .numberOfSteps(entity.stepCount());
     }
 
     private dev.michaelgoldman.recipebookbackend.api.model.Ingredient toIngredientResponse(Ingredient e) {

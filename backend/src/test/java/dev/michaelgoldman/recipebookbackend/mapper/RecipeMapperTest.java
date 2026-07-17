@@ -9,6 +9,7 @@ import dev.michaelgoldman.recipebookbackend.api.model.StepRequest;
 import dev.michaelgoldman.recipebookbackend.api.model.StepResponse;
 import dev.michaelgoldman.recipebookbackend.entity.Recipe;
 import dev.michaelgoldman.recipebookbackend.entity.Step;
+import dev.michaelgoldman.recipebookbackend.repository.projection.RecipeSummary;
 import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -19,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static dev.michaelgoldman.recipebookbackend.api.model.RecipeRequestTestBuilder.aRecipeRequest;
+import static dev.michaelgoldman.recipebookbackend.entity.RecipeSummaryTestBuilder.aRecipeSummary;
 import static dev.michaelgoldman.recipebookbackend.entity.RecipeTestBuilder.aRecipe;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
@@ -157,14 +159,16 @@ class RecipeMapperTest {
         @Test
         void whenEntityList_shouldMapToListOfResponses() {
             // Arrange
-            List<Recipe> entities = List.of(
-                    aRecipe().withId(1L).withName("Steak").build(),
-                    aRecipe().withId(2L).withName("Pizza").build(),
-                    aRecipe().withId(3L).withName("Pasta").build()
+            List<RecipeSummary> entities = List.of(
+                    aRecipeSummary().withId(1L).withName("Steak").build(),
+                    aRecipeSummary().withId(2L).withName("Pizza").build(),
+                    aRecipeSummary().withId(3L).withName("Pasta").build()
             );
 
             // Act
-            List<RecipeSummaryResponse> responses = recipeMapper.toResponseList(entities);
+            List<RecipeSummaryResponse> responses = recipeMapper.toResponseSummaryList(entities);
+
+
 
             // Assert
             assertThat(responses)
@@ -175,19 +179,19 @@ class RecipeMapperTest {
                     .containsExactly("Steak", "Pizza", "Pasta");
             assertThat(responses)
                     .extracting(RecipeSummaryResponse::getNumberOfIngredients)
-                    .containsExactly(1, 1, 1);
+                    .containsExactly(3, 3, 3);
             assertThat(responses)
                     .extracting(RecipeSummaryResponse::getNumberOfSteps)
-                    .containsExactly(1, 1, 1);
+                    .containsExactly(4, 4, 4);
         }
 
         @Test
         void whenEmptyList_shouldMapToEmptyList() {
             // Arrange
-            List<Recipe> emptyList = new ArrayList<>();
+            List<RecipeSummary> emptyList = new ArrayList<>();
 
             // Act
-            List<RecipeSummaryResponse> result = recipeMapper.toResponseList(emptyList);
+            List<RecipeSummaryResponse> result = recipeMapper.toResponseSummaryList(emptyList);
 
             // Assert
             assertThat(result).isEmpty();

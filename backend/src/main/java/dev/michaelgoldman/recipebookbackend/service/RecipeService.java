@@ -36,7 +36,7 @@ public class RecipeService {
     }
 
     public List<RecipeSummaryResponse> getAll() {
-        return recipeMapper.toResponseList(recipeRepository.findAll());
+        return recipeMapper.toResponseSummaryList(recipeRepository.findAll());
     }
 
     // TODO: @Transactional(readOnly = true)

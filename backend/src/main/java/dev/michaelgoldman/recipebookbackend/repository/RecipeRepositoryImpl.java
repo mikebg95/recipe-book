@@ -1,6 +1,7 @@
 package dev.michaelgoldman.recipebookbackend.repository;
 
 import dev.michaelgoldman.recipebookbackend.entity.Recipe;
+import dev.michaelgoldman.recipebookbackend.repository.projection.RecipeSummary;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.springframework.stereotype.Repository;
@@ -31,9 +32,9 @@ public class RecipeRepositoryImpl implements RecipeRepository {
     }
 
     @Override
-    public List<Recipe> findAll() {
-        String jpql = "SELECT r FROM Recipe r";
-        return entityManager.createQuery(jpql, Recipe.class).getResultList();
+    public List<RecipeSummary> findAll() {
+        String jpql = "SELECT id, name, description, SIZE(r.ingredients), SIZE(r.steps) FROM Recipe r";
+        return entityManager.createQuery(jpql, RecipeSummary.class).getResultList();
     }
 
     @Override

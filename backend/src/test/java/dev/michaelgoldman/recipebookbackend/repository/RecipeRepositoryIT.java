@@ -5,6 +5,7 @@ import dev.michaelgoldman.recipebookbackend.entity.Ingredient;
 import dev.michaelgoldman.recipebookbackend.entity.Recipe;
 import dev.michaelgoldman.recipebookbackend.entity.RecipeTestBuilder;
 import dev.michaelgoldman.recipebookbackend.entity.Step;
+import dev.michaelgoldman.recipebookbackend.repository.projection.RecipeSummary;
 import jakarta.persistence.EntityExistsException;
 import org.hibernate.exception.DataException;
 import org.junit.jupiter.api.DisplayName;
@@ -431,7 +432,7 @@ class RecipeRepositoryIT {
     @DisplayName("FindAllRecipes")
     class FindAllRecipes {
         @Test
-        void whenRecipesExist_shouldReturnListOfRecipes() {
+        void whenRecipesExist_shouldReturnListOfRecipeSummaries() {
             // Arrange
             Recipe carbonara = aCarbonara().build();
             Recipe cacioEPepe = aCacioEPepe().build();
@@ -443,14 +444,14 @@ class RecipeRepositoryIT {
             testEntityManager.clear();
 
             // Act
-            List<Recipe> fetched = recipeRepository.findAll();
+            List<RecipeSummary> fetched = recipeRepository.findAll();
 
             // Assert
             assertThat(fetched)
-                    .extracting(Recipe::getName)
+                    .extracting(RecipeSummary::name)
                             .containsExactlyInAnyOrder(carbonara.getName(), cacioEPepe.getName(), recipe.getName());
             assertThat(fetched)
-                    .extracting(Recipe::getName, r -> r.getIngredients().size())
+                    .extracting(RecipeSummary::name, RecipeSummary::ingredientCount)
                     .containsExactlyInAnyOrder(
                             tuple(carbonara.getName(), carbonara.getIngredients().size()),
                             tuple(cacioEPepe.getName(), cacioEPepe.getIngredients().size()),
@@ -460,10 +461,8 @@ class RecipeRepositoryIT {
 
         @Test
         void whenNoRecipesExist_shouldReturnEmptyList() {
-            // Arrange
-
             // Act
-            List<Recipe> fetched = recipeRepository.findAll();
+            List<RecipeSummary> fetched = recipeRepository.findAll();
 
             // Assert
             assertThat(fetched).isEmpty();

@@ -12,6 +12,7 @@ import dev.michaelgoldman.recipebookbackend.exception.RecipeDoesNotExistExceptio
 import dev.michaelgoldman.recipebookbackend.exception.RecipeNameAlreadyExistsException;
 import dev.michaelgoldman.recipebookbackend.mapper.RecipeMapper;
 import dev.michaelgoldman.recipebookbackend.repository.RecipeRepository;
+import dev.michaelgoldman.recipebookbackend.repository.projection.RecipeSummary;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -28,6 +29,7 @@ import java.util.Optional;
 import static dev.michaelgoldman.recipebookbackend.api.model.RecipeRequestTestBuilder.aRecipeRequest;
 import static dev.michaelgoldman.recipebookbackend.api.model.RecipeResponseTestBuilder.aRecipeResponse;
 import static dev.michaelgoldman.recipebookbackend.api.model.RecipeSummaryResponseTestBuilder.aRecipeSummaryResponse;
+import static dev.michaelgoldman.recipebookbackend.entity.RecipeSummaryTestBuilder.aRecipeSummary;
 import static dev.michaelgoldman.recipebookbackend.entity.RecipeTestBuilder.aRecipe;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -107,9 +109,9 @@ class RecipeServiceTest {
             // Arrange
             List<RecipeSummaryResponse> responses = List.of(aRecipeSummaryResponse().build(), aRecipeSummaryResponse().build());
 
-            List<Recipe> entities = List.of(aRecipe().withName("Steak").build(), aRecipe().withName("Pizza").build());
+            List<RecipeSummary> entities = List.of(aRecipeSummary().withName("Steak").build(), aRecipeSummary().withName("Pizza").build());
             when(recipeRepository.findAll()).thenReturn(entities);
-            when(recipeMapper.toResponseList(entities)).thenReturn(responses);
+            when(recipeMapper.toResponseSummaryList(entities)).thenReturn(responses);
 
             // Act
             List<RecipeSummaryResponse> fetched = recipeService.getAll();
@@ -121,10 +123,10 @@ class RecipeServiceTest {
         @Test
         void whenNoRecipesExist_shouldReturnEmptyListResponse() {
             // Arrange
-            List<Recipe> entities = Collections.emptyList();
+            List<RecipeSummary> entities = Collections.emptyList();
             List<RecipeSummaryResponse> responses = Collections.emptyList();
             when(recipeRepository.findAll()).thenReturn(entities);
-            when(recipeMapper.toResponseList(entities)).thenReturn(responses);
+            when(recipeMapper.toResponseSummaryList(entities)).thenReturn(responses);
 
             // Act
             List<RecipeSummaryResponse> fetched = recipeService.getAll();
