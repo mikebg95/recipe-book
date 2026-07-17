@@ -33,7 +33,7 @@ public class RecipeRepositoryImpl implements RecipeRepository {
 
     @Override
     public List<RecipeSummary> findAll() {
-        String jpql = "SELECT id, name, description, SIZE(r.ingredients), SIZE(r.steps) FROM Recipe r";
+        String jpql = "SELECT r.id, r.name, r.description, SIZE(r.ingredients), SIZE(r.steps) FROM Recipe r";
         return entityManager.createQuery(jpql, RecipeSummary.class).getResultList();
     }
 

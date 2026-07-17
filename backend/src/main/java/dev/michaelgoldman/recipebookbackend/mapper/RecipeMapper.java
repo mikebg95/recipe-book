@@ -16,10 +16,10 @@ import java.util.List;
 
 @Component
 public class RecipeMapper {
-    public List<RecipeSummaryResponse> toResponseSummaryList(List<RecipeSummary> entities) {
+    public List<RecipeSummaryResponse> toResponseSummaryList(List<RecipeSummary> summaries) {
         List<RecipeSummaryResponse> responseList = new ArrayList<>();
-        for (RecipeSummary entity : entities) {
-            responseList.add(toSummaryResponse(entity));
+        for (RecipeSummary summary : summaries) {
+            responseList.add(toSummaryResponse(summary));
         }
         return responseList;
     }
@@ -68,13 +68,13 @@ public class RecipeMapper {
                 .steps(entity.getSteps().stream().map(this::toStepResponse).toList());
     }
 
-    public RecipeSummaryResponse toSummaryResponse(RecipeSummary entity) {
+    public RecipeSummaryResponse toSummaryResponse(RecipeSummary summary) {
         return new RecipeSummaryResponse()
-                .id(entity.id())
-                .name(entity.name())
-                .description(entity.description())
-                .numberOfIngredients(entity.ingredientCount())
-                .numberOfSteps(entity.stepCount());
+                .id(summary.id())
+                .name(summary.name())
+                .description(summary.description())
+                .numberOfIngredients(summary.ingredientCount())
+                .numberOfSteps(summary.stepCount());
     }
 
     private dev.michaelgoldman.recipebookbackend.api.model.Ingredient toIngredientResponse(Ingredient e) {

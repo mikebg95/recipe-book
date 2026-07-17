@@ -154,10 +154,10 @@ class RecipeMapperTest {
     }
 
     @Nested
-    @DisplayName("toResponseList")
-    class ToResponseList {
+    @DisplayName("toResponseSummaryList")
+    class ToResponseSummaryList {
         @Test
-        void whenEntityList_shouldMapToListOfResponses() {
+        void whenEntityList_shouldMapToListOfResponseSummaries() {
             // Arrange
             List<RecipeSummary> entities = List.of(
                     aRecipeSummary().withId(1L).withName("Steak").build(),

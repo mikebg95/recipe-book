@@ -451,11 +451,11 @@ class RecipeRepositoryIT {
                     .extracting(RecipeSummary::name)
                             .containsExactlyInAnyOrder(carbonara.getName(), cacioEPepe.getName(), recipe.getName());
             assertThat(fetched)
-                    .extracting(RecipeSummary::name, RecipeSummary::ingredientCount)
+                    .extracting(RecipeSummary::name, RecipeSummary::ingredientCount, RecipeSummary::stepCount)
                     .containsExactlyInAnyOrder(
-                            tuple(carbonara.getName(), carbonara.getIngredients().size()),
-                            tuple(cacioEPepe.getName(), cacioEPepe.getIngredients().size()),
-                            tuple(recipe.getName(), recipe.getIngredients().size())
+                            tuple(carbonara.getName(), carbonara.getIngredients().size(), carbonara.getSteps().size()),
+                            tuple(cacioEPepe.getName(), cacioEPepe.getIngredients().size(), cacioEPepe.getSteps().size()),
+                            tuple(recipe.getName(), recipe.getIngredients().size(), recipe.getSteps().size())
                     );
         }
 
