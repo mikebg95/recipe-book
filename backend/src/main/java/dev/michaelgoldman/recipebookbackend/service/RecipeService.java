@@ -24,7 +24,7 @@ public class RecipeService {
         this.recipeMapper = recipeMapper;
     }
 
-    // TODO: @Transactional
+    @Transactional
     public RecipeResponse createRecipe(RecipeRequest request) {
         if (recipeRepository.existsByName(request.getName())) {
             throw new RecipeNameAlreadyExistsException(request.getName());
@@ -39,7 +39,7 @@ public class RecipeService {
         return recipeMapper.toResponseSummaryList(recipeRepository.findAll());
     }
 
-    // TODO: @Transactional(readOnly = true)
+    @Transactional(readOnly = true)
     public RecipeResponse getById(Long id) {
         Optional<Recipe> recipeOptional = recipeRepository.findById(id);
         if (recipeOptional.isEmpty()) {
@@ -48,7 +48,7 @@ public class RecipeService {
         return recipeMapper.toResponse(recipeOptional.get());
     }
 
-    // TODO: @Transactional
+    @Transactional
     public void deleteById(Long id) {
         boolean isDeleted = recipeRepository.deleteById(id);
         if (!isDeleted) {
