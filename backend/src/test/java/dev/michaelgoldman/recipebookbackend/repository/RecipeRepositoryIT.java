@@ -248,12 +248,43 @@ class RecipeRepositoryIT {
         }
 
         @Test
+        void whenRecipeNameIsDuplicateWithDifferentCasing_shouldThrowConstraintViolationException() {
+            // Arrange
+            Recipe recipe = new Recipe("recipe", "foo");
+            Recipe duplicateName = new Recipe("RECIPE", "bar");
+
+            saveAndReload(recipe);
+
+            // Act & Assert
+            assertSaveFailsWith(duplicateName, ConstraintViolationException.class);
+        }
+
+        @Test
         void whenIngredientNameIsDuplicate_shouldThrowConstraintViolationException() {
             // Arrange
             Recipe recipe = aRecipe()
                     .withIngredients(
                             anIngredient().withName("Salt").build(),
                             anIngredient().withName("Salt").build()
+                    ).build();
+
+            // Act & Assert
+            assertThatThrownBy(() -> {
+                recipeRepository.save(recipe);
+                testEntityManager.flush();
+                testEntityManager.getEntityManager()
+                        .createNativeQuery("SET CONSTRAINTS ALL IMMEDIATE")
+                        .executeUpdate();
+            }).isInstanceOf(ConstraintViolationException.class);
+        }
+
+        @Test
+        void whenIngredientNameIsDuplicateWithDifferentCasing_shouldThrowConstraintViolationException() {
+            // Arrange
+            Recipe recipe = aRecipe()
+                    .withIngredients(
+                            anIngredient().withName("Salt").build(),
+                            anIngredient().withName("SALT").build()
                     ).build();
 
             // Act & Assert
