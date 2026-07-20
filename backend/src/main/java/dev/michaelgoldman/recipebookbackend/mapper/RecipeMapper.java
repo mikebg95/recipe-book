@@ -26,13 +26,8 @@ public class RecipeMapper {
 
     public Recipe toEntity(RecipeRequest request) {
         Recipe recipe = new Recipe(request.getName(), request.getDescription());
-
-        for (dev.michaelgoldman.recipebookbackend.api.model.Ingredient ingredient : request.getIngredients()) {
-            recipe.addIngredient(new Ingredient(ingredient.getName(), ingredient.getUnit(), ingredient.getQuantity()));
-        }
-        for (StepRequest step : request.getSteps()) {
-            recipe.addStep(new Step(step.getDescription()));
-        }
+        recipe.replaceIngredients(toIngredientEntities(request.getIngredients()));
+        recipe.replaceSteps(toStepEntities(request.getSteps()));
         return recipe;
     }
 
