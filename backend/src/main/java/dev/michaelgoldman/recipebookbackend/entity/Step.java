@@ -32,7 +32,7 @@ public class Step implements Serializable {
     @SequenceGenerator(name = "step_seq", sequenceName = "steps_id_seq", allocationSize = 50)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 500)
     @Setter
     private String description;
 

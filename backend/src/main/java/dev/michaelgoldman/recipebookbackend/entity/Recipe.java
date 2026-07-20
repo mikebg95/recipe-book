@@ -40,7 +40,7 @@ public class Recipe implements Serializable {
     @Column(nullable = false)
     private Long version;
 
-    @Column(nullable = false, length = 100, unique = true)
+    @Column(nullable = false, length = 100)
     @Setter
     private String name;
 
