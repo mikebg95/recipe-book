@@ -455,8 +455,46 @@ class RecipeRepositoryIT {
             // Act & Assert
             assertThat(recipeRepository.existsByName("FEIJOADA")).isTrue();
         }
+    }
 
+    @Nested
+    @DisplayName("ExistsByNameExcludingId")
+    class ExistsByNameExcludingId {
+        @Test
+        void whenNameExistsOnDifferentId_shouldReturnTrue() {
+            // Arrange
+            Long savedId = testEntityManager.persistAndFlush(aRecipe().withName("Feijoada").build()).getId();
+            testEntityManager.clear();
 
+            // Act & Assert
+            assertThat(recipeRepository.existsByNameExcludingId("Feijoada", savedId + 1)).isTrue();
+        }
+
+        @Test
+        void whenNameExistsOnlyOnSameId_shouldReturnFalse() {
+            // Arrange
+            Long savedId = testEntityManager.persistAndFlush(aRecipe().withName("Feijoada").build()).getId();
+            testEntityManager.clear();
+
+            // Act & Assert
+            assertThat(recipeRepository.existsByNameExcludingId("Feijoada", savedId)).isFalse();
+        }
+
+        @Test
+        void whenNameExistsOnDifferentIdWithDifferentCasing_shouldReturnTrue() {
+            // Arrange
+            Long savedId = testEntityManager.persistAndFlush(aRecipe().withName("Feijoada").build()).getId();
+            testEntityManager.clear();
+
+            // Act & Assert
+            assertThat(recipeRepository.existsByNameExcludingId("FEIJOADA", savedId + 1)).isTrue();
+        }
+
+        @Test
+        void whenNameDoesNotExist_shouldReturnFalse() {
+            // Act & Assert
+            assertThat(recipeRepository.existsByNameExcludingId("Feijoada", 999L)).isFalse();
+        }
     }
 
     @Nested

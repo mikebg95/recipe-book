@@ -209,7 +209,7 @@ class RecipeServiceTest {
             RecipeResponse carbonaraResponse = aCarbonaraResponse().build();
 
             when(recipeRepository.findById(recipeId)).thenReturn(Optional.of(cacioEPepeEntity));
-            when(recipeRepository.existsByName(carbonaraRequest.getName())).thenReturn(false);
+            when(recipeRepository.existsByNameExcludingId(carbonaraRequest.getName(), recipeId)).thenReturn(false);
             when(recipeMapper.toResponse(cacioEPepeEntity)).thenReturn(carbonaraResponse);
 
             // Act
@@ -227,7 +227,7 @@ class RecipeServiceTest {
             RecipeRequest request = aRecipeRequest().withName("Pasta").build();
             Recipe oldEntity = aRecipe().withId(recipeId).withName("Steak").build();
             when(recipeRepository.findById(recipeId)).thenReturn(Optional.of(oldEntity));
-            when(recipeRepository.existsByName(request.getName())).thenReturn(true);
+            when(recipeRepository.existsByNameExcludingId(request.getName(), recipeId)).thenReturn(true);
 
             // Act & Assert
             assertThatThrownBy(() -> recipeService.updateById(recipeId, request))
@@ -236,18 +236,18 @@ class RecipeServiceTest {
         }
 
         @Test
-        void whenNameUnchanged_shouldNotThrowRecipeNameAlreadyExistsException() {
+        void whenNameUnchanged_shouldExcludeOwnIdFromDuplicateCheck() {
             // Arrange
             Long recipeId = 5L;
             RecipeRequest request = aRecipeRequest().withName("Steak").build();
             Recipe entity = aRecipe().withId(recipeId).withName("Steak").build();
-            when(recipeRepository.findById(5L)).thenReturn(Optional.of(entity));
+            when(recipeRepository.findById(recipeId)).thenReturn(Optional.of(entity));
 
             // Act
             recipeService.updateById(recipeId, request);
 
             // Assert
-            verify(recipeRepository, never()).existsByName(any());
+            verify(recipeRepository).existsByNameExcludingId(request.getName(), recipeId);
         }
 
         @Test

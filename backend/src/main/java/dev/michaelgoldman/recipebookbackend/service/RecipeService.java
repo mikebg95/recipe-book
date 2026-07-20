@@ -35,6 +35,7 @@ public class RecipeService {
         return recipeMapper.toResponse(saved);
     }
 
+    @Transactional(readOnly = true)
     public List<RecipeSummaryResponse> getAll() {
         return recipeMapper.toResponseSummaryList(recipeRepository.findAll());
     }
@@ -63,10 +64,8 @@ public class RecipeService {
             throw new RecipeDoesNotExistException(id);
         }
         Recipe recipe = entity.get();
-        if (!request.getName().equalsIgnoreCase(recipe.getName())) {
-            if (recipeRepository.existsByName(request.getName())) {
-                throw new RecipeNameAlreadyExistsException(request.getName());
-            }
+        if (recipeRepository.existsByNameExcludingId(request.getName(), id)) {
+            throw new RecipeNameAlreadyExistsException(request.getName());
         }
 
         recipeMapper.updateEntity(recipe, request);

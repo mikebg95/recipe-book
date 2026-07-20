@@ -32,6 +32,17 @@ public class RecipeRepositoryImpl implements RecipeRepository {
     }
 
     @Override
+    public boolean existsByNameExcludingId(String recipeName, Long id) {
+        String jpql = "SELECT COUNT(r) FROM Recipe r WHERE LOWER(r.name) = LOWER(:recipeName) AND r.id <> :id";
+        Long count = entityManager.createQuery(jpql, Long.class)
+                .setParameter("recipeName", recipeName)
+                .setParameter("id", id)
+                .getSingleResult();
+
+        return count > 0;
+    }
+
+    @Override
     public List<RecipeSummary> findAll() {
         String jpql = "SELECT r.id, r.name, r.description, SIZE(r.ingredients), SIZE(r.steps) FROM Recipe r";
         return entityManager.createQuery(jpql, RecipeSummary.class).getResultList();
