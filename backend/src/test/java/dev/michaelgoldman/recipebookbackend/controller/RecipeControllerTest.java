@@ -20,6 +20,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -396,6 +397,21 @@ public class RecipeControllerTest {
                     .andExpect(jsonPath("$.status").value(HttpStatus.CONFLICT.value()))
                     .andExpect(jsonPath("$.title").value("Recipe name already exists."))
                     .andExpect(jsonPath("$.detail").value("Recipe with name " + request.getName() + " already exists."));
+        }
+
+        @Test
+        void whenDataIntegrityViolationExceptionThrown_shouldReturn409() throws Exception {
+            // Arrange
+            RecipeRequest request = aRecipeRequest().build();
+            when(recipeService.updateById(RECIPE_ID, request)).thenThrow(new DataIntegrityViolationException("message"));
+
+            // Act & Assert
+            mockMvc.perform(putRecipe(RECIPE_ID).content(toJson(request)))
+                    .andExpect(status().isConflict())
+                    .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
+                    .andExpect(jsonPath("$.status").value(HttpStatus.CONFLICT.value()))
+                    .andExpect(jsonPath("$.title").value("Conflict"))
+                    .andExpect(jsonPath("$.detail").value("The request conflicts with existing data."));
         }
     }
 
