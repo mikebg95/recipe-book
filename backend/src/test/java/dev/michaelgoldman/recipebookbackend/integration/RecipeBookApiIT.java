@@ -355,6 +355,6 @@ class RecipeBookApiIT {
         assertThat(problemDetail).isNotNull();
         assertThat(problemDetail.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST.value());
         assertThat(problemDetail.getTitle()).isEqualTo("Validation failed");
-        assertThat(problemDetail.getDetail()).isEqualTo("One or more fields are invalid");
+        assertThat(problemDetail.getDetail()).isEqualTo("One or more fields are invalid.");
     }
 }

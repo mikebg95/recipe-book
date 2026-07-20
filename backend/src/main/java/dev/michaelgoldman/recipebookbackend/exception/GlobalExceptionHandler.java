@@ -21,18 +21,28 @@ import java.util.Map;
 @RestControllerAdvice
 @Slf4j
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
+    private static final String RECIPE_DUPLICATE_NAME_TITLE = "Recipe name already exists.";
+    private static final String RECIPE_NOT_FOUND_TITLE = "Recipe not found.";
+    private static final String INVALID_ARGUMENT_TITLE = "Validation failed";
+    private static final String INVALID_ARGUMENT_DETAIL = "One or more fields are invalid.";
+    private static final String DATA_INTEGRITY_TITLE = "Conflict";
+    private static final String DATA_INTEGRITY_DETAIL = "The request conflicts with existing data.";
+    private static final String OPTIMISTIC_LOCKING_FAILURE_TITLE = "Concurrent modification";
+    private static final String OPTIMISTIC_LOCKING_FAILURE_DETAIL = "This recipe was modified by another request. Reload it and try again.";
+    private static final String UNEXPECTED_ERROR_TITLE = "Unexpected error";
+    private static final String UNEXPECTED_ERROR_DETAIL = "An unexpected error occurred.";
 
     @ExceptionHandler(RecipeNameAlreadyExistsException.class)
     public ProblemDetail handleRecipeNameAlreadyExists(RecipeNameAlreadyExistsException e) {
         ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, e.getMessage());
-        problem.setTitle("Recipe name already exists.");
+        problem.setTitle(RECIPE_DUPLICATE_NAME_TITLE);
         return problem;
     }
 
     @ExceptionHandler(RecipeDoesNotExistException.class)
     public ProblemDetail handleRecipeDoesNotExist(RecipeDoesNotExistException e) {
         ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, e.getMessage());
-        problem.setTitle("Recipe not found.");
+        problem.setTitle(RECIPE_NOT_FOUND_TITLE);
         return problem;
     }
 
@@ -40,8 +50,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     protected ResponseEntity<Object> handleMethodArgumentNotValid(
             MethodArgumentNotValidException ex, @NonNull HttpHeaders headers, @NonNull HttpStatusCode status, @NonNull WebRequest request) {
         ProblemDetail problem = ex.getBody();
-        problem.setTitle("Validation failed");
-        problem.setDetail("One or more fields are invalid");
+        problem.setTitle(INVALID_ARGUMENT_TITLE);
+        problem.setDetail(INVALID_ARGUMENT_DETAIL);
 
         Map<String, String> errors = new HashMap<>();
         ex.getBindingResult().getFieldErrors()
@@ -59,8 +69,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     public ProblemDetail handleDataIntegrityViolation(DataIntegrityViolationException e) {
         log.error("Data integrity violation", e);
         ProblemDetail problem = ProblemDetail.forStatusAndDetail(
-                HttpStatus.CONFLICT, "The request conflicts with existing data.");
-        problem.setTitle("Conflict");
+                HttpStatus.CONFLICT, DATA_INTEGRITY_DETAIL);
+        problem.setTitle(DATA_INTEGRITY_TITLE);
         return problem;
     }
 
@@ -68,16 +78,16 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     public ProblemDetail handleOptimisticLockingFailure(OptimisticLockingFailureException e) {
         log.error("Optimistic locking failure", e);
         ProblemDetail problem = ProblemDetail.forStatusAndDetail(
-                HttpStatus.CONFLICT, "This recipe was modified by another request. Reload it and try again.");
-        problem.setTitle("Concurrent modification");
+                HttpStatus.CONFLICT, OPTIMISTIC_LOCKING_FAILURE_DETAIL);
+        problem.setTitle(OPTIMISTIC_LOCKING_FAILURE_TITLE);
         return problem;
     }
 
     @ExceptionHandler(Exception.class)
     public ProblemDetail handleUnexpectedException(Exception e) {
         log.error("Unhandled exception", e);
-        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR, "An unexpected error occurred.");
-        problem.setTitle("Unexpected error");
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR, UNEXPECTED_ERROR_DETAIL);
+        problem.setTitle(UNEXPECTED_ERROR_TITLE);
         return problem;
     }
 }
