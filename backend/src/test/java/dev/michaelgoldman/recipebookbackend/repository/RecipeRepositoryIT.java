@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import static dev.michaelgoldman.recipebookbackend.entity.IngredientTestBuilder.anIngredient;
+import static dev.michaelgoldman.recipebookbackend.entity.IngredientTestBuilder.anIngredientEntity;
 import static dev.michaelgoldman.recipebookbackend.entity.RecipeTestBuilder.aRecipe;
 import static dev.michaelgoldman.recipebookbackend.fixtures.RecipeFixtures.CARBONARA_STEPS_DESCRIPTIONS;
 import static dev.michaelgoldman.recipebookbackend.fixtures.RecipeFixtures.NON_EXISTING_ID;
@@ -121,7 +121,7 @@ class RecipeRepositoryIT {
         void whenIngredientQuantityLessThanOne_shouldPersistSuccessfully() {
             // Arrange
             BigDecimal quantity = new BigDecimal("0.1");
-            Recipe recipe = aRecipe().withIngredients(anIngredient().withQuantity(quantity).build()).build();
+            Recipe recipe = aRecipe().withIngredients(anIngredientEntity().withQuantity(quantity).build()).build();
 
             // Act
             Recipe fetched = saveAndReload(recipe);
@@ -137,7 +137,7 @@ class RecipeRepositoryIT {
         @Test
         void whenIngredientQuantityTooManyDecimals_shouldPersistSuccessfullyAndRoundToThreeDecimals() {
             // Arrange
-            Recipe recipe = aRecipe().withIngredients(anIngredient().withQuantity(new BigDecimal("123.1234")).build()).build();
+            Recipe recipe = aRecipe().withIngredients(anIngredientEntity().withQuantity(new BigDecimal("123.1234")).build()).build();
 
             // Act
             Recipe fetched = saveAndReload(recipe);
@@ -199,7 +199,7 @@ class RecipeRepositoryIT {
         @ValueSource(strings = {"0", "-1"})
         void whenIngredientQuantityZeroOrNegative_shouldThrowConstraintViolationException(String quantity) {
             // Arrange
-            Recipe recipe = aRecipe().withIngredients(anIngredient().withQuantity(new BigDecimal(quantity)).build()).build();
+            Recipe recipe = aRecipe().withIngredients(anIngredientEntity().withQuantity(new BigDecimal(quantity)).build()).build();
 
             // Act & Assert
             assertSaveFailsWith(recipe, ConstraintViolationException.class);
@@ -254,8 +254,8 @@ class RecipeRepositoryIT {
             // Arrange
             Recipe recipe = aRecipe()
                     .withIngredients(
-                            anIngredient().withName("Salt").build(),
-                            anIngredient().withName("Salt").build()
+                            anIngredientEntity().withName("Salt").build(),
+                            anIngredientEntity().withName("Salt").build()
                     ).build();
 
             // Act & Assert
@@ -267,8 +267,8 @@ class RecipeRepositoryIT {
             // Arrange
             Recipe recipe = aRecipe()
                     .withIngredients(
-                            anIngredient().withName("Salt").build(),
-                            anIngredient().withName("SALT").build()
+                            anIngredientEntity().withName("Salt").build(),
+                            anIngredientEntity().withName("SALT").build()
                     ).build();
 
             // Act & Assert
@@ -278,7 +278,7 @@ class RecipeRepositoryIT {
         @Test
         void whenIngredientQuantityTooManyIntegers_shouldThrowDataException() {
             // Arrange
-            Recipe recipe = aRecipe().withIngredients(anIngredient().withQuantity(new BigDecimal("12345678")).build()).build();
+            Recipe recipe = aRecipe().withIngredients(anIngredientEntity().withQuantity(new BigDecimal("12345678")).build()).build();
 
             // Act & Assert
             assertSaveFailsWith(recipe, DataException.class);
@@ -307,15 +307,15 @@ class RecipeRepositoryIT {
                     ),
                     arguments(
                             "ingredient name",
-                            aRecipe().withIngredients(anIngredient().withName("a".repeat(100)).build()).build()
+                            aRecipe().withIngredients(anIngredientEntity().withName("a".repeat(100)).build()).build()
                     ),
                     arguments(
                             "ingredient unit",
-                            aRecipe().withIngredients(anIngredient().withUnit("a".repeat(50)).build()).build()
+                            aRecipe().withIngredients(anIngredientEntity().withUnit("a".repeat(50)).build()).build()
                     ),
                     arguments(
                             "ingredient quantity",
-                            aRecipe().withIngredients(anIngredient().withQuantity(new BigDecimal("9999999.999")).build()).build()
+                            aRecipe().withIngredients(anIngredientEntity().withQuantity(new BigDecimal("9999999.999")).build()).build()
                     ),
                     arguments(
                             "step description",
@@ -327,9 +327,9 @@ class RecipeRepositoryIT {
         static Stream<Arguments> nullValues() {
             return Stream.of(
                     arguments("recipe name", aRecipe().withName(null).build()),
-                    arguments("ingredient name", aRecipe().withIngredients(anIngredient().withName(null).build()).build()),
-                    arguments("ingredient unit", aRecipe().withIngredients(anIngredient().withUnit(null).build()).build()),
-                    arguments("ingredient quantity", aRecipe().withIngredients(anIngredient().withQuantity(null).build()).build()),
+                    arguments("ingredient name", aRecipe().withIngredients(anIngredientEntity().withName(null).build()).build()),
+                    arguments("ingredient unit", aRecipe().withIngredients(anIngredientEntity().withUnit(null).build()).build()),
+                    arguments("ingredient quantity", aRecipe().withIngredients(anIngredientEntity().withQuantity(null).build()).build()),
                     arguments("step description", recipeWithStepDescription(null)),
                     arguments("step number", recipeWithStepNumber(null))
             );
@@ -347,11 +347,11 @@ class RecipeRepositoryIT {
                     ),
                     arguments(
                             "ingredient name",
-                            aRecipe().withIngredients(anIngredient().withName("a".repeat(101)).build()).build()
+                            aRecipe().withIngredients(anIngredientEntity().withName("a".repeat(101)).build()).build()
                     ),
                     arguments(
                             "ingredient unit",
-                            aRecipe().withIngredients(anIngredient().withUnit("a".repeat(101)).build()).build()
+                            aRecipe().withIngredients(anIngredientEntity().withUnit("a".repeat(101)).build()).build()
                     ),
                     arguments(
                             "step description",

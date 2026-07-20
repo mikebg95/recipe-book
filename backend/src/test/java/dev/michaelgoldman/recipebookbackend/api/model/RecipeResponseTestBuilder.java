@@ -3,14 +3,14 @@ package dev.michaelgoldman.recipebookbackend.api.model;
 import java.util.List;
 import java.util.stream.IntStream;
 
-import static dev.michaelgoldman.recipebookbackend.api.model.IngredientTestBuilder.anIngredient;
+import static dev.michaelgoldman.recipebookbackend.api.model.IngredientTestBuilder.anIngredientDto;
 import static dev.michaelgoldman.recipebookbackend.api.model.StepResponseTestBuilder.aStepResponse;
 
 public class RecipeResponseTestBuilder {
     private Long id = 1L;
     private String name = "Valid Recipe Name";
     private String description = "A valid recipe description.";
-    private List<Ingredient> ingredients = List.of(anIngredient().build());
+    private List<Ingredient> ingredients = List.of(anIngredientDto().build());
     private List<StepResponse> steps = List.of(aStepResponse().build());
 
     public static RecipeResponseTestBuilder aRecipeResponse() {

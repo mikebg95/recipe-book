@@ -36,7 +36,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
 
-import static dev.michaelgoldman.recipebookbackend.api.model.IngredientTestBuilder.anIngredient;
+import static dev.michaelgoldman.recipebookbackend.api.model.IngredientTestBuilder.anIngredientDto;
 import static dev.michaelgoldman.recipebookbackend.api.model.RecipeRequestTestBuilder.aRecipeRequest;
 import static dev.michaelgoldman.recipebookbackend.api.model.RecipeResponseTestBuilder.aRecipeResponse;
 import static dev.michaelgoldman.recipebookbackend.api.model.RecipeSummaryResponseTestBuilder.aRecipeSummaryResponse;
@@ -555,8 +555,8 @@ public class RecipeControllerTest {
 
     static Stream<Arguments> nonPositiveQuantities() {
         return Stream.of(
-                arguments("ingredient quantity zero", aRecipeRequest().withIngredients(anIngredient().withQuantity(new BigDecimal("0")).build()).build()),
-                arguments("ingredient quantity negative", aRecipeRequest().withIngredients(anIngredient().withQuantity(new BigDecimal("-1")).build()).build())
+                arguments("ingredient quantity zero", aRecipeRequest().withIngredients(anIngredientDto().withQuantity(new BigDecimal("0")).build()).build()),
+                arguments("ingredient quantity negative", aRecipeRequest().withIngredients(anIngredientDto().withQuantity(new BigDecimal("-1")).build()).build())
         );
     }
 
@@ -569,16 +569,16 @@ public class RecipeControllerTest {
                         "recipe description", aRecipeRequest().withDescription("a".repeat(501)).build()
                 ),
                 arguments(
-                        "ingredient name", aRecipeRequest().withIngredients(anIngredient().withName("a".repeat(101)).build()).build()
+                        "ingredient name", aRecipeRequest().withIngredients(anIngredientDto().withName("a".repeat(101)).build()).build()
                 ),
                 arguments(
-                        "ingredient unit", aRecipeRequest().withIngredients(anIngredient().withUnit("a".repeat(51)).build()).build()
+                        "ingredient unit", aRecipeRequest().withIngredients(anIngredientDto().withUnit("a".repeat(51)).build()).build()
                 ),
                 arguments(
-                        "ingredient quantity too many integer digits", aRecipeRequest().withIngredients(anIngredient().withQuantity(new BigDecimal("10000000")).build()).build()
+                        "ingredient quantity too many integer digits", aRecipeRequest().withIngredients(anIngredientDto().withQuantity(new BigDecimal("10000000")).build()).build()
                 ),
                 arguments(
-                        "ingredient quantity too many decimals", aRecipeRequest().withIngredients(anIngredient().withQuantity(new BigDecimal("1.0001")).build()).build()
+                        "ingredient quantity too many decimals", aRecipeRequest().withIngredients(anIngredientDto().withQuantity(new BigDecimal("1.0001")).build()).build()
                 ),
                 arguments(
                         "step description", aRecipeRequest().withStepDescriptions(List.of("a".repeat(501))).build()
@@ -589,12 +589,12 @@ public class RecipeControllerTest {
     static Stream<Arguments> emptyStrings() {
         return Stream.of(
                 arguments("recipe name empty", aRecipeRequest().withName("").build()),
-                arguments("ingredient name empty", aRecipeRequest().withIngredients(anIngredient().withName("").build()).build()),
-                arguments("ingredient unit empty", aRecipeRequest().withIngredients(anIngredient().withUnit("").build()).build()),
+                arguments("ingredient name empty", aRecipeRequest().withIngredients(anIngredientDto().withName("").build()).build()),
+                arguments("ingredient unit empty", aRecipeRequest().withIngredients(anIngredientDto().withUnit("").build()).build()),
                 arguments("step description empty", aRecipeRequest().withStepDescriptions(Collections.singletonList("")).build()),
                 arguments("recipe name whitespace", aRecipeRequest().withName("   ").build()),
-                arguments("ingredient name whitespace", aRecipeRequest().withIngredients(anIngredient().withName("   ").build()).build()),
-                arguments("ingredient unit whitespace", aRecipeRequest().withIngredients(anIngredient().withUnit("   ").build()).build()),
+                arguments("ingredient name whitespace", aRecipeRequest().withIngredients(anIngredientDto().withName("   ").build()).build()),
+                arguments("ingredient unit whitespace", aRecipeRequest().withIngredients(anIngredientDto().withUnit("   ").build()).build()),
                 arguments("step description whitespace", aRecipeRequest().withStepDescriptions(Collections.singletonList("   ")).build())
         );
     }
@@ -602,9 +602,9 @@ public class RecipeControllerTest {
     static Stream<Arguments> nullValues() {
         return Stream.of(
                 arguments("recipe name", aRecipeRequest().withName(null).build()),
-                arguments("ingredient name", aRecipeRequest().withIngredients(anIngredient().withName(null).build()).build()),
-                arguments("ingredient unit", aRecipeRequest().withIngredients(anIngredient().withUnit(null).build()).build()),
-                arguments("ingredient quantity", aRecipeRequest().withIngredients(anIngredient().withQuantity(null).build()).build()),
+                arguments("ingredient name", aRecipeRequest().withIngredients(anIngredientDto().withName(null).build()).build()),
+                arguments("ingredient unit", aRecipeRequest().withIngredients(anIngredientDto().withUnit(null).build()).build()),
+                arguments("ingredient quantity", aRecipeRequest().withIngredients(anIngredientDto().withQuantity(null).build()).build()),
                 arguments("step description", aRecipeRequest().withStepDescriptions(Collections.singletonList(null)).build())
         );
     }
@@ -629,13 +629,13 @@ public class RecipeControllerTest {
                         "recipe description", aRecipeRequest().withDescription("a".repeat(500)).build()
                 ),
                 arguments(
-                        "ingredient name", aRecipeRequest().withIngredients(anIngredient().withName("a".repeat(100)).build()).build()
+                        "ingredient name", aRecipeRequest().withIngredients(anIngredientDto().withName("a".repeat(100)).build()).build()
                 ),
                 arguments(
-                        "ingredient unit", aRecipeRequest().withIngredients(anIngredient().withUnit("a".repeat(50)).build()).build()
+                        "ingredient unit", aRecipeRequest().withIngredients(anIngredientDto().withUnit("a".repeat(50)).build()).build()
                 ),
                 arguments(
-                        "ingredient quantity", aRecipeRequest().withIngredients(anIngredient().withQuantity(new BigDecimal("9999999.999")).build()).build()
+                        "ingredient quantity", aRecipeRequest().withIngredients(anIngredientDto().withQuantity(new BigDecimal("9999999.999")).build()).build()
                 ),
                 arguments(
                         "step description", aRecipeRequest().withStepDescriptions(List.of("a".repeat(500))).build()

@@ -7,7 +7,7 @@ public class IngredientTestBuilder {
     private String unit = "grams";
     private BigDecimal quantity = new BigDecimal("1");
 
-    public static IngredientTestBuilder anIngredient() {
+    public static IngredientTestBuilder anIngredientDto() {
         return new IngredientTestBuilder();
     }
 
