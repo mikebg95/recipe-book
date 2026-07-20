@@ -1,6 +1,6 @@
 package dev.michaelgoldman.recipebookbackend.integration;
 
-import dev.michaelgoldman.recipebookbackend.TestcontainersConfiguration;
+import dev.michaelgoldman.recipebookbackend.AbstractIntegrationTest;
 import dev.michaelgoldman.recipebookbackend.api.model.Ingredient;
 import dev.michaelgoldman.recipebookbackend.api.model.ProblemDetail;
 import dev.michaelgoldman.recipebookbackend.api.model.RecipeRequest;
@@ -13,12 +13,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureRestTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.client.RestTestClient;
 
 import java.math.BigDecimal;
@@ -29,10 +27,8 @@ import static dev.michaelgoldman.recipebookbackend.api.model.RecipeRequestTestBu
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@Import(TestcontainersConfiguration.class)
 @AutoConfigureRestTestClient
-@ActiveProfiles("test")
-class RecipeBookApiIT {
+class RecipeBookApiIT extends AbstractIntegrationTest {
     @Autowired
     RestTestClient restTestClient;
 
@@ -45,33 +41,14 @@ class RecipeBookApiIT {
     }
 
     @Test
-    void createRecipe_thenFetchById_returnsPersistedRecipe() {
+    void createRecipe_thenFetchById_shouldReturnPersistedRecipe() {
         RecipeRequest request = aRecipeRequest().build();
 
         // save
-        Long savedId = Objects.requireNonNull(restTestClient
-                        .post()
-                        .uri("/api/v1/recipes")
-                        .body(request)
-                        .exchange()
-                        .expectStatus().isCreated()
-                        .expectHeader().contentType(MediaType.APPLICATION_JSON)
-                        .expectBody(RecipeResponse.class)
-                        .returnResult()
-                        .getResponseBody())
-                .getId();
-
+        Long savedId = createRecipe(request);
 
         // get by id
-        RecipeResponse fetched = restTestClient
-                .get()
-                .uri("/api/v1/recipes/{id}", savedId)
-                .exchange()
-                .expectStatus().isOk()
-                .expectHeader().contentType(MediaType.APPLICATION_JSON)
-                .expectBody(RecipeResponse.class)
-                .returnResult()
-                .getResponseBody();
+        RecipeResponse fetched = fetchById(savedId);
 
         // assert
         assertThat(fetched).isNotNull();
@@ -100,33 +77,14 @@ class RecipeBookApiIT {
     }
 
     @Test
-    void createRecipe_withDescriptionNull_thenFetchById_returnsNullDescription() {
+    void createRecipe_withDescriptionNull_thenFetchById_shouldReturnNullDescription() {
         RecipeRequest request = aRecipeRequest().withDescription(null).build();
 
         // save
-        Long savedId = Objects.requireNonNull(restTestClient
-                        .post()
-                        .uri("/api/v1/recipes")
-                        .body(request)
-                        .exchange()
-                        .expectStatus().isCreated()
-                        .expectHeader().contentType(MediaType.APPLICATION_JSON)
-                        .expectBody(RecipeResponse.class)
-                        .returnResult()
-                        .getResponseBody())
-                .getId();
-
+        Long savedId = createRecipe(request);
 
         // get by id
-        RecipeResponse fetched = restTestClient
-                .get()
-                .uri("/api/v1/recipes/{id}", savedId)
-                .exchange()
-                .expectStatus().isOk()
-                .expectHeader().contentType(MediaType.APPLICATION_JSON)
-                .expectBody(RecipeResponse.class)
-                .returnResult()
-                .getResponseBody();
+        RecipeResponse fetched = fetchById(savedId);
 
         // assert
         assertThat(fetched).isNotNull();
@@ -135,33 +93,14 @@ class RecipeBookApiIT {
     }
 
     @Test
-    void createRecipe_withUntrimmedName_thenFetchById_returnsTrimmedName() {
+    void createRecipe_withUntrimmedName_thenFetchById_shouldReturnTrimmedName() {
         RecipeRequest request = aRecipeRequest().withName("   Steak & Fries      ").build();
 
         // save
-        Long savedId = Objects.requireNonNull(restTestClient
-                        .post()
-                        .uri("/api/v1/recipes")
-                        .body(request)
-                        .exchange()
-                        .expectStatus().isCreated()
-                        .expectHeader().contentType(MediaType.APPLICATION_JSON)
-                        .expectBody(RecipeResponse.class)
-                        .returnResult()
-                        .getResponseBody())
-                .getId();
-
+        Long savedId = createRecipe(request);
 
         // get by id
-        RecipeResponse fetched = restTestClient
-                .get()
-                .uri("/api/v1/recipes/{id}", savedId)
-                .exchange()
-                .expectStatus().isOk()
-                .expectHeader().contentType(MediaType.APPLICATION_JSON)
-                .expectBody(RecipeResponse.class)
-                .returnResult()
-                .getResponseBody();
+        RecipeResponse fetched = fetchById(savedId);
 
         // assert
         assertThat(fetched).isNotNull();
@@ -216,17 +155,7 @@ class RecipeBookApiIT {
         RecipeRequest old = aRecipeRequest().withName("Steak").build();
 
         // save
-        Long savedId = Objects.requireNonNull(restTestClient
-                        .post()
-                        .uri("/api/v1/recipes")
-                        .body(old)
-                        .exchange()
-                        .expectStatus().isCreated()
-                        .expectHeader().contentType(MediaType.APPLICATION_JSON)
-                        .expectBody(RecipeResponse.class)
-                        .returnResult()
-                        .getResponseBody())
-                .getId();
+        Long savedId = createRecipe(old);
 
         RecipeRequest update = aRecipeRequest().withName("Pizza").build();
 
@@ -244,15 +173,7 @@ class RecipeBookApiIT {
                 .getId();
 
         // get by id
-        RecipeResponse fetched = restTestClient
-                .get()
-                .uri("/api/v1/recipes/{id}", updatedId)
-                .exchange()
-                .expectStatus().isOk()
-                .expectHeader().contentType(MediaType.APPLICATION_JSON)
-                .expectBody(RecipeResponse.class)
-                .returnResult()
-                .getResponseBody();
+        RecipeResponse fetched = fetchById(updatedId);
 
         // assert
         assertThat(fetched).isNotNull();
@@ -265,16 +186,7 @@ class RecipeBookApiIT {
         RecipeRequest request = aRecipeRequest().withName("Steak").build();
 
         // save
-        Long savedId = Objects.requireNonNull(restTestClient
-                        .post()
-                        .uri("/api/v1/recipes")
-                        .body(request)
-                        .exchange()
-                        .expectStatus().isCreated()
-                        .expectBody(RecipeResponse.class)
-                        .returnResult()
-                        .getResponseBody())
-                .getId();
+        Long savedId = createRecipe(request);
 
         // delete
         restTestClient
@@ -356,5 +268,31 @@ class RecipeBookApiIT {
         assertThat(problemDetail.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST.value());
         assertThat(problemDetail.getTitle()).isEqualTo("Validation failed");
         assertThat(problemDetail.getDetail()).isEqualTo("One or more fields are invalid.");
+    }
+
+    private Long createRecipe(RecipeRequest request) {
+        return Objects.requireNonNull(restTestClient
+                        .post()
+                        .uri("/api/v1/recipes")
+                        .body(request)
+                        .exchange()
+                        .expectStatus().isCreated()
+                        .expectHeader().contentType(MediaType.APPLICATION_JSON)
+                        .expectBody(RecipeResponse.class)
+                        .returnResult()
+                        .getResponseBody())
+                .getId();
+    }
+
+    private RecipeResponse fetchById(Long id) {
+        return restTestClient
+                .get()
+                .uri("/api/v1/recipes/{id}", id)
+                .exchange()
+                .expectStatus().isOk()
+                .expectHeader().contentType(MediaType.APPLICATION_JSON)
+                .expectBody(RecipeResponse.class)
+                .returnResult()
+                .getResponseBody();
     }
 }

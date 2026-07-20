@@ -3,7 +3,6 @@ package dev.michaelgoldman.recipebookbackend.repository;
 import dev.michaelgoldman.recipebookbackend.TestcontainersConfiguration;
 import dev.michaelgoldman.recipebookbackend.entity.Ingredient;
 import dev.michaelgoldman.recipebookbackend.entity.Recipe;
-import dev.michaelgoldman.recipebookbackend.entity.RecipeTestBuilder;
 import dev.michaelgoldman.recipebookbackend.entity.Step;
 import dev.michaelgoldman.recipebookbackend.repository.projection.RecipeSummary;
 import jakarta.persistence.EntityExistsException;
@@ -29,6 +28,10 @@ import java.util.stream.Stream;
 
 import static dev.michaelgoldman.recipebookbackend.entity.IngredientTestBuilder.anIngredient;
 import static dev.michaelgoldman.recipebookbackend.entity.RecipeTestBuilder.aRecipe;
+import static dev.michaelgoldman.recipebookbackend.fixtures.RecipeFixtures.CARBONARA_STEPS_DESCRIPTIONS;
+import static dev.michaelgoldman.recipebookbackend.fixtures.RecipeFixtures.NON_EXISTING_ID;
+import static dev.michaelgoldman.recipebookbackend.fixtures.RecipeFixtures.aCacioEPepe;
+import static dev.michaelgoldman.recipebookbackend.fixtures.RecipeFixtures.aCarbonara;
 import static org.assertj.core.api.Assertions.as;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNoException;
@@ -42,19 +45,6 @@ import static org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTest
 @AutoConfigureTestDatabase(replace = NONE)
 @Import({TestcontainersConfiguration.class, RecipeRepositoryImpl.class})
 class RecipeRepositoryIT {
-    private static final List<String> CARBONARA_STEPS_DESCRIPTIONS = List.of(
-            "Crisp the diced guanciale in a pan over medium heat; set the rendered fat and meat aside.",
-            "Whisk egg yolks, Pecorino Romano, and plenty of cracked black pepper in a bowl to form a thick paste.",
-            "Boil spaghetti in salted water until al dente, drain (reserve 1 cup of pasta water), and immediately toss the hot pasta into the guanciale pan.",
-            "Remove pan from heat, stir in the egg-cheese paste and a splash of pasta water, tossing vigorously until a smooth, creamy sauce forms."
-    );
-
-    private static final List<String> CACIO_E_PEPE_STEPS_DESCRIPTIONS = List.of(
-            "Toast the freshly cracked black pepper in a dry pan over medium heat until fragrant.",
-            "Boil the tonnarelli or spaghetti in salted water until very al dente; transfer directly to the pan with the pepper, reserving the pasta water.",
-            "Add a ladle of hot pasta water to the pan and toss to create a starchy base, then remove the pan from the heat.",
-            "Sprinkle in the Pecorino Romano while stirring and tossing vigorously, adding a bit more pasta water as needed to create a creamy sauce."
-    );
 
     @Autowired
     private RecipeRepository recipeRepository;
@@ -111,7 +101,7 @@ class RecipeRepositoryIT {
                     .containsExactlyElementsOf(CARBONARA_STEPS_DESCRIPTIONS);
             assertThat(fetched.getSteps())
                     .extracting(Step::getStepNumber)
-                    .containsExactly(1, 2, 3, 4);
+                    .containsExactly(1, 2, 3, 4, 5);
         }
 
         @Test
@@ -269,13 +259,7 @@ class RecipeRepositoryIT {
                     ).build();
 
             // Act & Assert
-            assertThatThrownBy(() -> {
-                recipeRepository.save(recipe);
-                testEntityManager.flush();
-                testEntityManager.getEntityManager()
-                        .createNativeQuery("SET CONSTRAINTS ALL IMMEDIATE")
-                        .executeUpdate();
-            }).isInstanceOf(ConstraintViolationException.class);
+            assertThatThrownBy(() -> saveAndForceConstraintCheck(recipe)).isInstanceOf(ConstraintViolationException.class);
         }
 
         @Test
@@ -288,13 +272,7 @@ class RecipeRepositoryIT {
                     ).build();
 
             // Act & Assert
-            assertThatThrownBy(() -> {
-                recipeRepository.save(recipe);
-                testEntityManager.flush();
-                testEntityManager.getEntityManager()
-                        .createNativeQuery("SET CONSTRAINTS ALL IMMEDIATE")
-                        .executeUpdate();
-            }).isInstanceOf(ConstraintViolationException.class);
+            assertThatThrownBy(() -> saveAndForceConstraintCheck(recipe)).isInstanceOf(ConstraintViolationException.class);
         }
 
         @Test
@@ -314,13 +292,7 @@ class RecipeRepositoryIT {
             recipe.getSteps().getFirst().setStepNumber(2);
 
             // Act & Assert
-            assertThatThrownBy(() -> {
-                recipeRepository.save(recipe);
-                testEntityManager.flush();
-                testEntityManager.getEntityManager()
-                        .createNativeQuery("SET CONSTRAINTS ALL IMMEDIATE")
-                        .executeUpdate();
-            }).isInstanceOf(ConstraintViolationException.class);
+            assertThatThrownBy(() -> saveAndForceConstraintCheck(recipe)).isInstanceOf(ConstraintViolationException.class);
         }
 
         static Stream<Arguments> limitValues() {
@@ -493,7 +465,7 @@ class RecipeRepositoryIT {
         @Test
         void whenNameDoesNotExist_shouldReturnFalse() {
             // Act & Assert
-            assertThat(recipeRepository.existsByNameExcludingId("Feijoada", 999L)).isFalse();
+            assertThat(recipeRepository.existsByNameExcludingId("Feijoada", NON_EXISTING_ID)).isFalse();
         }
     }
 
@@ -546,7 +518,8 @@ class RecipeRepositoryIT {
             // Arrange
             String name = "Pizza";
             Recipe recipe = aRecipe().withName(name).build();
-            Long savedId = saveAndReload(recipe).getId();
+            Long savedId = testEntityManager.persistAndFlush(recipe).getId();
+            testEntityManager.clear();
 
             // Act
             Optional<Recipe> fetched = recipeRepository.findById(savedId);
@@ -583,7 +556,7 @@ class RecipeRepositoryIT {
         @Test
         void whenNonExistingIdProvided_shouldReturnEmptyOptional() {
             // Act
-            Optional<Recipe> fetched = recipeRepository.findById(99L);
+            Optional<Recipe> fetched = recipeRepository.findById(NON_EXISTING_ID);
 
             // Assert
             assertThat(fetched).isEmpty();
@@ -599,9 +572,10 @@ class RecipeRepositoryIT {
             Recipe recipe1 = aRecipe().withName("Steak").build();
             Recipe recipe2 = aRecipe().withName("Pizza").build();
             Recipe recipe3 = aRecipe().withName("Pasta").build();
-            Long savedId1 = saveAndReload(recipe1).getId();
-            Long savedId2 = saveAndReload(recipe2).getId();
-            Long savedId3 = saveAndReload(recipe3).getId();
+            Long savedId1 = testEntityManager.persistAndFlush(recipe1).getId();
+            Long savedId2 = testEntityManager.persistAndFlush(recipe2).getId();
+            Long savedId3 = testEntityManager.persistAndFlush(recipe3).getId();
+            testEntityManager.clear();
 
             // Act
             boolean isDeleted = recipeRepository.deleteById(savedId2);
@@ -642,22 +616,15 @@ class RecipeRepositoryIT {
         @Test
         void whenNonExistingIdProvided_shouldReturnFalse() {
             // Act
-            boolean isDeleted = recipeRepository.deleteById(999L);
+            boolean isDeleted = recipeRepository.deleteById(NON_EXISTING_ID);
 
             // Assert
             assertThat(isDeleted).isFalse();
         }
     }
 
-    private Recipe saveAndReload(Recipe recipe) {
-        recipeRepository.save(recipe);
-        testEntityManager.flush();
-        testEntityManager.clear();
-        return testEntityManager.find(Recipe.class, recipe.getId());
-    }
-
     @Nested
-    @DisplayName("Orphan removal on update")
+    @DisplayName("OrphanRemovalOnUpdate")
     class OrphanRemovalOnUpdate {
         @Test
         void whenIngredientsAndStepsReplaced_shouldDeleteOrphanedIngredientAndStepsRows() {
@@ -711,7 +678,7 @@ class RecipeRepositoryIT {
 
             // Assert
             assertThat(oldIngredients).hasSize(5);
-            assertThat(oldSteps).hasSize(4);
+            assertThat(oldSteps).hasSize(5);
             assertThat(newIngredients).hasSize(3);
             assertThat(newSteps).hasSize(2);
             assertThat(totalIngredientCount).isEqualTo(3);
@@ -735,35 +702,25 @@ class RecipeRepositoryIT {
         }
     }
 
+    private Recipe saveAndReload(Recipe recipe) {
+        recipeRepository.save(recipe);
+        testEntityManager.flush();
+        testEntityManager.clear();
+        return testEntityManager.find(Recipe.class, recipe.getId());
+    }
+
+    private void saveAndForceConstraintCheck(Recipe recipe) {
+        recipeRepository.save(recipe);
+        testEntityManager.flush();
+        testEntityManager.getEntityManager()
+                .createNativeQuery("SET CONSTRAINTS ALL IMMEDIATE")
+                .executeUpdate();
+    }
+
     private void assertSaveFailsWith(Recipe recipe, Class<? extends Throwable> exception) {
         assertThatThrownBy(() -> {
             recipeRepository.save(recipe);
             testEntityManager.flush();
         }).isInstanceOf(exception);
-    }
-
-    private static RecipeTestBuilder aCarbonara() {
-        return aRecipe()
-                .withName("Spaghetti alla Carbonara")
-                .withDescription("An Italian classic.")
-                .withIngredients(
-                        new Ingredient("Guanciale", "grams", new BigDecimal("150")),
-                        new Ingredient("Pecorino Romano", "grams", new BigDecimal("100")),
-                        new Ingredient("Spaghetti", "grams", new BigDecimal("350")),
-                        new Ingredient("Large egg", "yolk", new BigDecimal("6")),
-                        new Ingredient("Black pepper", "to taste", new BigDecimal("1")))
-                .withStepDescriptions(CARBONARA_STEPS_DESCRIPTIONS);
-    }
-
-    private static RecipeTestBuilder aCacioEPepe() {
-        return aRecipe()
-                .withName("Cacio e Pepe")
-                .withDescription("A minimalist Roman masterpiece.")
-                .withIngredients(
-                        new Ingredient("Tonnarelli or Spaghetti", "grams", new BigDecimal("350")),
-                        new Ingredient("Pecorino Romano", "grams", new BigDecimal("120")),
-                        new Ingredient("Black pepper", "tablespoons", new BigDecimal("1.5")),
-                        new Ingredient("Salt", "to taste", new BigDecimal("1")))
-                .withStepDescriptions(CACIO_E_PEPE_STEPS_DESCRIPTIONS);
     }
 }

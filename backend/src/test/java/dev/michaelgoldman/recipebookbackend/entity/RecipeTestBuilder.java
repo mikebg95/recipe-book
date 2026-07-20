@@ -7,7 +7,7 @@ import java.util.List;
 
 public class RecipeTestBuilder {
     private Long id;
-    private String name = "Valid recipe name";
+    private String name = "Valid Recipe Name";
     private String description = "A valid recipe description.";
     private List<Ingredient> ingredients = List.of(
             new Ingredient("Salt", "grams", new BigDecimal("1")));

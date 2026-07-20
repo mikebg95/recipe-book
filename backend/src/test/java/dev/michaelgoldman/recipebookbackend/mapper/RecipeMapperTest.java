@@ -2,7 +2,6 @@ package dev.michaelgoldman.recipebookbackend.mapper;
 
 import dev.michaelgoldman.recipebookbackend.api.model.Ingredient;
 import dev.michaelgoldman.recipebookbackend.api.model.RecipeRequest;
-import dev.michaelgoldman.recipebookbackend.api.model.RecipeRequestTestBuilder;
 import dev.michaelgoldman.recipebookbackend.api.model.RecipeResponse;
 import dev.michaelgoldman.recipebookbackend.api.model.RecipeSummaryResponse;
 import dev.michaelgoldman.recipebookbackend.api.model.StepRequest;
@@ -19,28 +18,13 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-import static dev.michaelgoldman.recipebookbackend.api.model.RecipeRequestTestBuilder.aRecipeRequest;
 import static dev.michaelgoldman.recipebookbackend.entity.RecipeSummaryTestBuilder.aRecipeSummary;
-import static dev.michaelgoldman.recipebookbackend.entity.RecipeTestBuilder.aRecipe;
+import static dev.michaelgoldman.recipebookbackend.fixtures.RecipeFixtures.aCacioEPepe;
+import static dev.michaelgoldman.recipebookbackend.fixtures.RecipeFixtures.aCarbonaraRequest;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 
 class RecipeMapperTest {
-    private static final List<String> CARBONARA_STEPS_DESCRIPTIONS = List.of(
-            "Crisp the diced guanciale in a pan over medium heat; set the rendered fat and meat aside.",
-            "Whisk egg yolks, Pecorino Romano, and plenty of cracked black pepper in a bowl to form a thick paste.",
-            "Boil spaghetti in salted water until al dente, drain (reserve 1 cup of pasta water), and immediately toss the hot pasta into the guanciale pan.",
-            "Remove pan from heat, stir in the egg-cheese paste and a splash of pasta water, tossing vigorously until a smooth, creamy sauce forms.",
-            "Enjoy the beautiful tasty dish!."
-    );
-
-    private static final List<String> CACIO_E_PEPE_STEPS_DESCRIPTIONS = List.of(
-            "Toast the freshly cracked black pepper in a dry pan over medium heat until fragrant.",
-            "Boil the tonnarelli or spaghetti in salted water until very al dente; transfer directly to the pan with the pepper, reserving the pasta water.",
-            "Add a ladle of hot pasta water to the pan and toss to create a starchy base, then remove the pan from the heat.",
-            "Sprinkle in the Pecorino Romano while stirring and tossing vigorously, adding a bit more pasta water as needed to create a creamy sauce."
-    );
-
     private final RecipeMapper recipeMapper = new RecipeMapper();
 
     @Nested
@@ -49,7 +33,7 @@ class RecipeMapperTest {
         @Test
         void whenFullyPopulatedRequest_shouldMapNameDescriptionIngredientsAndSteps() {
             // Arrange
-            RecipeRequest request = carbonaraRequest().build();
+            RecipeRequest request = aCarbonaraRequest().build();
 
             // Act
             Recipe entity = recipeMapper.toEntity(request);
@@ -80,7 +64,7 @@ class RecipeMapperTest {
         @Test
         void whenFullyPopulatedRequest_shouldSetParentBackReferenceOnIngredientsAndSteps() {
             // Arrange
-            RecipeRequest request = carbonaraRequest().build();
+            RecipeRequest request = aCarbonaraRequest().build();
 
             // Act
             Recipe entity = recipeMapper.toEntity(request);
@@ -96,7 +80,7 @@ class RecipeMapperTest {
         @Test
         void whenDescriptionNull_shouldMapDescriptionToNull() {
             // Arrange
-            RecipeRequest request = carbonaraRequest().build();
+            RecipeRequest request = aCarbonaraRequest().build();
             request.setDescription(null);
 
             // Act
@@ -113,7 +97,7 @@ class RecipeMapperTest {
         @Test
         void whenFullyPopulatedEntity_shouldMapNameDescriptionIngredientsAndSteps() {
             // Arrange
-            Recipe entity = cacioEPepeEntity();
+            Recipe entity = aCacioEPepe().withId(5L).build();
 
             // Act
             RecipeResponse response = recipeMapper.toResponse(entity);
@@ -142,7 +126,7 @@ class RecipeMapperTest {
         @Test
         void whenDescriptionNull_shouldMapDescriptionToNull() {
             // Arrange
-            Recipe entity = cacioEPepeEntity();
+            Recipe entity = aCacioEPepe().build();
             entity.setDescription(null);
 
             // Act
@@ -199,13 +183,13 @@ class RecipeMapperTest {
     }
 
     @Nested
-    @DisplayName("UpdateEntity")
+    @DisplayName("updateEntity")
     class UpdateEntity {
         @Test
-        void updateEntity_whenPopulatedEntityAndRequestPassed_shouldUpdateEntityValues() {
+        void whenPopulatedEntityAndRequestPassed_shouldUpdateEntityValues() {
             // Arrange
-            Recipe entity = cacioEPepeEntity();
-            RecipeRequest request = carbonaraRequest().build();
+            Recipe entity = aCacioEPepe().withId(5L).build();
+            RecipeRequest request = aCarbonaraRequest().build();
             Long entityId = entity.getId();
 
             // Act
@@ -262,10 +246,10 @@ class RecipeMapperTest {
         }
 
         @Test
-        void updateEntity_whenDescriptionNullInRequest_shouldUpdateEntityCorrectly() {
+        void whenDescriptionNullInRequest_shouldUpdateEntityCorrectly() {
             // Arrange
-            Recipe entity = cacioEPepeEntity();
-            RecipeRequest request = carbonaraRequest().withDescription(null).build();
+            Recipe entity = aCacioEPepe().build();
+            RecipeRequest request = aCarbonaraRequest().withDescription(null).build();
 
             // Act
             recipeMapper.updateEntity(entity, request);
@@ -273,32 +257,5 @@ class RecipeMapperTest {
             // Assert
             assertThat(entity.getDescription()).isNull();
         }
-    }
-
-    private RecipeRequestTestBuilder carbonaraRequest() {
-        return aRecipeRequest()
-                .withName("Spaghetti alla Carbonara")
-                .withDescription("An Italian classic.")
-                .withIngredients(
-                        new Ingredient("Guanciale", "grams", new BigDecimal("150")),
-                        new Ingredient("Pecorino Romano", "grams", new BigDecimal("100")),
-                        new Ingredient("Spaghetti", "grams", new BigDecimal("350")),
-                        new Ingredient("Large egg", "yolk", new BigDecimal("6")),
-                        new Ingredient("Black pepper", "to taste", new BigDecimal("1")))
-                .withStepDescriptions(CARBONARA_STEPS_DESCRIPTIONS);
-    }
-
-    private Recipe cacioEPepeEntity() {
-        return aRecipe()
-                .withId(5L)
-                .withName("Cacio e Pepe")
-                .withDescription("A minimalist Roman masterpiece.")
-                .withIngredients(
-                        new dev.michaelgoldman.recipebookbackend.entity.Ingredient("Tonnarelli or Spaghetti", "grams", new BigDecimal("350")),
-                        new dev.michaelgoldman.recipebookbackend.entity.Ingredient("Pecorino Romano", "grams", new BigDecimal("120")),
-                        new dev.michaelgoldman.recipebookbackend.entity.Ingredient("Black pepper", "tablespoons", new BigDecimal("1.5")),
-                        new dev.michaelgoldman.recipebookbackend.entity.Ingredient("Salt", "to taste", new BigDecimal("1")))
-                .withStepDescriptions(CACIO_E_PEPE_STEPS_DESCRIPTIONS)
-                .build();
     }
 }

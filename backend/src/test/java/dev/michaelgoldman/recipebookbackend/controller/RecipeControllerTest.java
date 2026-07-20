@@ -40,6 +40,7 @@ import static dev.michaelgoldman.recipebookbackend.api.model.IngredientTestBuild
 import static dev.michaelgoldman.recipebookbackend.api.model.RecipeRequestTestBuilder.aRecipeRequest;
 import static dev.michaelgoldman.recipebookbackend.api.model.RecipeResponseTestBuilder.aRecipeResponse;
 import static dev.michaelgoldman.recipebookbackend.api.model.RecipeSummaryResponseTestBuilder.aRecipeSummaryResponse;
+import static dev.michaelgoldman.recipebookbackend.fixtures.RecipeFixtures.NON_EXISTING_ID;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.endsWith;
@@ -64,7 +65,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Import({WebConfig.class, GlobalExceptionHandler.class})
 public class RecipeControllerTest {
     private static final Long RECIPE_ID = 1L;
-    private static final Long NON_EXISTING_ID = 999L;
     private static final String NOT_FOUND_DETAIL = "No recipe found with id " + NON_EXISTING_ID;
 
     @Autowired
@@ -82,7 +82,7 @@ public class RecipeControllerTest {
         @ParameterizedTest
         @NullSource
         @ValueSource(strings = { "A valid recipe description." })
-        @DisplayName("valid request provided should update recipe successfully")
+        @DisplayName("valid request provided should create recipe successfully")
         void whenValidRequest_shouldReturn201(String description) throws Exception {
             RecipeRequest request = aRecipeRequest().withDescription(description).build();
             assertCreatedAndDelegates(request);
@@ -90,7 +90,7 @@ public class RecipeControllerTest {
 
         @ParameterizedTest(name = "{0}")
         @MethodSource("dev.michaelgoldman.recipebookbackend.controller.RecipeControllerTest#limitValues")
-        @DisplayName("value at limit should update successfully")
+        @DisplayName("value at limit should create successfully")
         void whenValuesAtLimit_shouldReturn201(String scenario, RecipeRequest request) throws Exception {
             assertCreatedAndDelegates(request);
         }
@@ -180,7 +180,7 @@ public class RecipeControllerTest {
     @DisplayName("GET /recipes")
     class GetRecipes {
         @Test
-        void whenRecipesExist_shouldReturn200WithListOfRecipeResponses() throws Exception {
+        void whenRecipesExist_shouldReturn200WithListOfRecipeSummaryResponses() throws Exception {
             // Arrange
             List<RecipeSummaryResponse> responses = List.of(
                     aRecipeSummaryResponse().withId(1L).withName("Pizza").build(),
@@ -198,7 +198,7 @@ public class RecipeControllerTest {
         }
 
         @Test
-        void whenNoRecipesExist_shouldReturn200withEmptyList() throws Exception {
+        void whenNoRecipesExist_shouldReturn200WithEmptyList() throws Exception {
             // Arrange
             List<RecipeSummaryResponse> responses = Collections.emptyList();
             when(recipeService.getAll()).thenReturn(responses);
@@ -307,8 +307,8 @@ public class RecipeControllerTest {
 
         @ParameterizedTest(name = "{0}")
         @MethodSource("dev.michaelgoldman.recipebookbackend.controller.RecipeControllerTest#limitValues")
-        @DisplayName("value at limit should create successfully")
-        void whenValuesAtLimit_shouldReturn201(String scenario, RecipeRequest request) throws Exception {
+        @DisplayName("value at limit should update successfully")
+        void whenValuesAtLimit_shouldReturn200(String scenario, RecipeRequest request) throws Exception {
             assertUpdatedAndDelegates(request);
         }
 
@@ -371,7 +371,7 @@ public class RecipeControllerTest {
         }
 
         @Test
-        void whenNoneExistingIdProvided_shouldReturn404() throws Exception {
+        void whenNonExistingIdProvided_shouldReturn404() throws Exception {
             // Arrange
             RecipeRequest request = aRecipeRequest().build();
             when(recipeService.updateById(NON_EXISTING_ID, request)).thenThrow(new RecipeDoesNotExistException(NON_EXISTING_ID));

@@ -2,7 +2,7 @@ package dev.michaelgoldman.recipebookbackend.api.model;
 
 public class RecipeSummaryResponseTestBuilder {
     private Long id = 1L;
-    private String name = "Valid recipe name";
+    private String name = "Valid Recipe Name";
     private String description = "A valid recipe description.";
     private Integer numberOfIngredients = 1;
     private Integer numberOfSteps = 1;

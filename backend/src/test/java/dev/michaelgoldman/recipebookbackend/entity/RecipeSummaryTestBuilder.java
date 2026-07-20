@@ -4,7 +4,7 @@ import dev.michaelgoldman.recipebookbackend.repository.projection.RecipeSummary;
 
 public class RecipeSummaryTestBuilder {
     private Long id = 1L;
-    private String name = "Valid recipe name";
+    private String name = "Valid Recipe Name";
     private String description = "A valid recipe description.";
     private int ingredientCount = 3;
     private int stepCount = 4;

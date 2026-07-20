@@ -1,13 +1,9 @@
 package dev.michaelgoldman.recipebookbackend.service;
 
-import dev.michaelgoldman.recipebookbackend.api.model.Ingredient;
 import dev.michaelgoldman.recipebookbackend.api.model.RecipeRequest;
-import dev.michaelgoldman.recipebookbackend.api.model.RecipeRequestTestBuilder;
 import dev.michaelgoldman.recipebookbackend.api.model.RecipeResponse;
-import dev.michaelgoldman.recipebookbackend.api.model.RecipeResponseTestBuilder;
 import dev.michaelgoldman.recipebookbackend.api.model.RecipeSummaryResponse;
 import dev.michaelgoldman.recipebookbackend.entity.Recipe;
-import dev.michaelgoldman.recipebookbackend.entity.RecipeTestBuilder;
 import dev.michaelgoldman.recipebookbackend.exception.RecipeDoesNotExistException;
 import dev.michaelgoldman.recipebookbackend.exception.RecipeNameAlreadyExistsException;
 import dev.michaelgoldman.recipebookbackend.mapper.RecipeMapper;
@@ -21,7 +17,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -31,6 +26,10 @@ import static dev.michaelgoldman.recipebookbackend.api.model.RecipeResponseTestB
 import static dev.michaelgoldman.recipebookbackend.api.model.RecipeSummaryResponseTestBuilder.aRecipeSummaryResponse;
 import static dev.michaelgoldman.recipebookbackend.entity.RecipeSummaryTestBuilder.aRecipeSummary;
 import static dev.michaelgoldman.recipebookbackend.entity.RecipeTestBuilder.aRecipe;
+import static dev.michaelgoldman.recipebookbackend.fixtures.RecipeFixtures.NON_EXISTING_ID;
+import static dev.michaelgoldman.recipebookbackend.fixtures.RecipeFixtures.aCacioEPepe;
+import static dev.michaelgoldman.recipebookbackend.fixtures.RecipeFixtures.aCarbonaraRequest;
+import static dev.michaelgoldman.recipebookbackend.fixtures.RecipeFixtures.aCarbonaraResponse;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -40,21 +39,6 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class RecipeServiceTest {
-    private final static Long NON_EXISTING_ID = 999L;
-
-    private static final List<String> CARBONARA_STEPS_DESCRIPTIONS = List.of(
-            "Crisp the diced guanciale in a pan over medium heat; set the rendered fat and meat aside.",
-            "Whisk egg yolks, Pecorino Romano, and plenty of cracked black pepper in a bowl to form a thick paste.",
-            "Boil spaghetti in salted water until al dente, drain (reserve 1 cup of pasta water), and immediately toss the hot pasta into the guanciale pan.",
-            "Remove pan from heat, stir in the egg-cheese paste and a splash of pasta water, tossing vigorously until a smooth, creamy sauce forms."
-    );
-
-    private static final List<String> CACIO_E_PEPE_STEPS_DESCRIPTIONS = List.of(
-            "Toast the freshly cracked black pepper in a dry pan over medium heat until fragrant.",
-            "Boil the tonnarelli or spaghetti in salted water until very al dente; transfer directly to the pan with the pepper, reserving the pasta water.",
-            "Add a ladle of hot pasta water to the pan and toss to create a starchy base, then remove the pan from the heat.",
-            "Sprinkle in the Pecorino Romano while stirring and tossing vigorously, adding a bit more pasta water as needed to create a creamy sauce."
-    );
 
     @InjectMocks
     RecipeService recipeService;
@@ -205,7 +189,7 @@ class RecipeServiceTest {
             Long recipeId = 5L;
 
             RecipeRequest carbonaraRequest = aCarbonaraRequest().build();
-            Recipe cacioEPepeEntity = aCacioEPepeEntity().withId(recipeId).build();
+            Recipe cacioEPepeEntity = aCacioEPepe().withId(recipeId).build();
             RecipeResponse carbonaraResponse = aCarbonaraResponse().build();
 
             when(recipeRepository.findById(recipeId)).thenReturn(Optional.of(cacioEPepeEntity));
@@ -261,44 +245,5 @@ class RecipeServiceTest {
                     .isInstanceOf(RecipeDoesNotExistException.class)
                     .hasMessageContaining(String.valueOf(NON_EXISTING_ID));
         }
-    }
-
-    private static RecipeRequestTestBuilder aCarbonaraRequest() {
-        return aRecipeRequest()
-                .withName("Spaghetti alla Carbonara")
-                .withDescription("An Italian classic.")
-                .withIngredients(
-                        new Ingredient("Guanciale", "grams", new BigDecimal("150")),
-                        new Ingredient("Pecorino Romano", "grams", new BigDecimal("100")),
-                        new Ingredient("Spaghetti", "grams", new BigDecimal("350")),
-                        new Ingredient("Large egg", "yolk", new BigDecimal("6")),
-                        new Ingredient("Black pepper", "to taste", new BigDecimal("1")))
-                .withStepDescriptions(CARBONARA_STEPS_DESCRIPTIONS);
-    }
-
-    private static RecipeResponseTestBuilder aCarbonaraResponse() {
-        return aRecipeResponse()
-                .withName("Spaghetti alla Carbonara")
-                .withDescription("An Italian classic.")
-                .withIngredients(
-                        new Ingredient("Guanciale", "grams", new BigDecimal("150")),
-                        new Ingredient("Pecorino Romano", "grams", new BigDecimal("100")),
-                        new Ingredient("Spaghetti", "grams", new BigDecimal("350")),
-                        new Ingredient("Large egg", "yolk", new BigDecimal("6")),
-                        new Ingredient("Black pepper", "to taste", new BigDecimal("1")))
-                .withStepDescriptions(CARBONARA_STEPS_DESCRIPTIONS);
-    }
-
-    private static RecipeTestBuilder aCacioEPepeEntity() {
-        return aRecipe()
-                .withId(5L)
-                .withName("Cacio e Pepe")
-                .withDescription("A minimalist Roman masterpiece.")
-                .withIngredients(
-                        new dev.michaelgoldman.recipebookbackend.entity.Ingredient("Tonnarelli or Spaghetti", "grams", new BigDecimal("350")),
-                        new dev.michaelgoldman.recipebookbackend.entity.Ingredient("Pecorino Romano", "grams", new BigDecimal("120")),
-                        new dev.michaelgoldman.recipebookbackend.entity.Ingredient("Black pepper", "tablespoons", new BigDecimal("1.5")),
-                        new dev.michaelgoldman.recipebookbackend.entity.Ingredient("Salt", "to taste", new BigDecimal("1")))
-                .withStepDescriptions(CACIO_E_PEPE_STEPS_DESCRIPTIONS);
     }
 }
