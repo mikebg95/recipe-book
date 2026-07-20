@@ -3,6 +3,7 @@ package dev.michaelgoldman.recipebookbackend.exception;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -60,6 +61,15 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         ProblemDetail problem = ProblemDetail.forStatusAndDetail(
                 HttpStatus.CONFLICT, "The request conflicts with existing data.");
         problem.setTitle("Conflict");
+        return problem;
+    }
+
+    @ExceptionHandler(OptimisticLockingFailureException.class)
+    public ProblemDetail handleOptimisticLockingFailure(OptimisticLockingFailureException e) {
+        log.error("Optimistic locking failure", e);
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(
+                HttpStatus.CONFLICT, "This recipe was modified by another request. Reload it and try again.");
+        problem.setTitle("Concurrent modification");
         return problem;
     }
 

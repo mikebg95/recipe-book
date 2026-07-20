@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -403,7 +404,7 @@ public class RecipeControllerTest {
         void whenDataIntegrityViolationExceptionThrown_shouldReturn409() throws Exception {
             // Arrange
             RecipeRequest request = aRecipeRequest().build();
-            when(recipeService.updateById(RECIPE_ID, request)).thenThrow(new DataIntegrityViolationException("message"));
+            when(recipeService.updateById(RECIPE_ID, request)).thenThrow(new DataIntegrityViolationException("Recipe name already exists."));
 
             // Act & Assert
             mockMvc.perform(putRecipe(RECIPE_ID).content(toJson(request)))
@@ -412,6 +413,21 @@ public class RecipeControllerTest {
                     .andExpect(jsonPath("$.status").value(HttpStatus.CONFLICT.value()))
                     .andExpect(jsonPath("$.title").value("Conflict"))
                     .andExpect(jsonPath("$.detail").value("The request conflicts with existing data."));
+        }
+
+        @Test
+        void whenOptimisticLockingFailureExceptionThrown_shouldReturn409() throws Exception {
+            // Arrange
+            RecipeRequest request = aRecipeRequest().build();
+            when(recipeService.updateById(RECIPE_ID, request)).thenThrow(new OptimisticLockingFailureException("Concurrent modification"));
+
+            // Act & Assert
+            mockMvc.perform(putRecipe(RECIPE_ID).content(toJson(request)))
+                    .andExpect(status().isConflict())
+                    .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
+                    .andExpect(jsonPath("$.status").value(HttpStatus.CONFLICT.value()))
+                    .andExpect(jsonPath("$.title").value("Concurrent modification"))
+                    .andExpect(jsonPath("$.detail").value("This recipe was modified by another request. Reload it and try again."));
         }
     }
 
