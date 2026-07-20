@@ -4,9 +4,6 @@ spring:
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
 
-  jackson:
-    default-property-inclusion: non_null
-
 logging:
   level:
     dev.michaelgoldman.recipebookbackend: DEBUG

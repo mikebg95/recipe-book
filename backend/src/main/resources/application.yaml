@@ -11,6 +11,9 @@ spring:
     hibernate:
       ddl-auto: validate
 
+  jackson:
+    default-property-inclusion: non_null
+
 springdoc:
   api-docs:
     enabled: ${SPRINGDOC_ENABLED:false}
